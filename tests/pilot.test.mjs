@@ -152,7 +152,7 @@ test("gallery browsing keeps two-column portrait-cover cards", () => {
   assert.match(bridgeScript,/const grid=node\('div','ehr-cloud-grid'\)/);
   assert.match(bridgeScript,/grid\.append\(card\)/);
   assert.match(bridgeScript,/aspect-ratio:3\/4/);
-  assert.match(bridgeScript,/ref\.dir=nextDir/);
+  assert.match(bridgeScript,/r\.dir=next/);
 });
 
 test("the cloud client waits for its own cooldown then continues loading",async()=>{
