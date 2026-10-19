@@ -31,7 +31,7 @@ test("cloud bootstrap injects valid bridge script after decompression", async ()
   assert.ok(anchor >= 0, "cloud bridge loaded from static bootstrap");
   const transform = script.slice(anchor,script.indexOf("document.open();",anchor));
   const result = new Function("page",transform + "return page;")("<html><body>Hello</body></html>");
-  assert.ok(result.includes("<script src='/__ehr_cloud.js?v=1403'></script>"), "valid tag emitted");
+  assert.ok(result.includes("<script src='/__ehr_cloud.js?v=1404'></script>"), "valid tag emitted");
   assert.equal(result.includes("<\\/script>"),false, "no escaped closing script tag");
 });
 

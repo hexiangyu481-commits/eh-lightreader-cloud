@@ -1,20 +1,20 @@
 {
   "project": "EH LightReader Cloud Pilot",
-  "version": "1.4.0-pilot.3",
+  "version": "1.4.0-pilot.4",
   "base_userscripts": "v1.3.2",
   "deployment": {
     "github_main_merged": true,
     "cloudflare_worker_deployed": true,
     "reason": "Cloudflare account was linked and Worker started, but this connector cannot inspect Cloudflare deployment versions.",
     "r_project_modified": false,
-    "verification": "Previous pilot.2 deployment verified by user-provided Cloudflare build log; pilot.3 pushed to deployment repo but live deployment unconfirmed."
+    "verification": "Pilot.3 was observed by user on real iPhone: catalog loads, first image gets gateway-local cooldown. Pilot.4 code staged in deployment repo; Cloudflare production deployment not yet confirmed."
   },
   "tests": {
-    "github_actions_offline": "Node syntax and offline regression suite runs in active deployment repo, pilot.3 follow-up test run pending confirmation.",
+    "github_actions_offline": "Two-column CSS and bounded client cooldown handling added to GitHub Actions regression suite; awaiting final main verification.",
     "cloudflare_live_api": "Unavailable directly from assistant; user to confirm health version 1.4.0-pilot.3 after deployment.",
     "site_egress": "not_tested",
-    "iphone_pwa": "iPhone 2026-10-20 recording: search returned 24 results without covers; gallery metadata failed with upstream_content_type. Pilot.3 addresses these; real retest pending.",
-    "reader_images": "Only mocked image-page parser tests; direct image delivery unverified on real iPhone."
+    "iphone_pwa": "Observed gallery directory 25 links, page 1 returned gateway-local cooldown. Search cards displayed as single column in cloud overlay; both targeted in pilot.4.",
+    "reader_images": "A valid image has not yet been observed on a real iPhone. Pilot.4 handles gateway's own cooldown; the remote image itself may remain unavailable."
   },
   "limits": [
     "No user login or cookies are imported.",
@@ -23,9 +23,9 @@
     "Cloudflare account owner must import the Worker once; no card required for free-plan pilot."
   ],
   "next": [
-    "Confirm Cloudflare /api/health version 1.4.0-pilot.3.",
-    "Retest thumbnail, gallery details and reading; app now permits catalog attempt without metadata.",
-    "Check /api/search warnings if still missing covers. Do not bypass site restrictions.",
-    "Keep Userscripts v1.3.2 as fallback until real images work."
+    "Confirm Cloudflare /api/health version 1.4.0-pilot.4 after deployment.",
+    "Use a fresh Safari tab: search category returns two-column grid, click gallery then read first page. Self-imposed cooldown should wait up to ~4 seconds and resume automatically.",
+    "If still no image, send exact error shown. Real upstream 403, 429 or image hotlink failure won't be bypassed.",
+    "Keep stable v1.3.2 Safari Userscripts fallback until real reading is verified."
   ]
 }

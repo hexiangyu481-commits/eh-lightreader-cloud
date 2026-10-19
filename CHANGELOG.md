@@ -1,5 +1,15 @@
 # EH LightReader Cloud — CHANGELOG
 
+## v1.4.0-pilot.4 · 2026-10-20
+
+- **Observed:** iPhone reader found a 25-page directory, but immediately requesting page 1 returned "请求太频繁" from our own cooldown timer. The cloud manga directory displayed as a one-column list rather than the previous two-column presentation.
+- **Cause:** The Worker requires at least 3.25 seconds between normal upstream HTML requests per running isolate, but the browser immediately requested the first image after fetching the gallery catalog. Returning the local cooldown as a fatal error stopped the reader before trying to resolve the image URL.
+- **Fix:** The cloud client waits for and retries only an explicitly tagged `cooldown` response, up to two bounded retries (1–8-second intervals), with visible waiting text. Real E-Hentai rate limits, denied access and challenges are **never** retried.
+- **UI:** Restore iPhone two-column portrait-cover grid, preserve large tap targets, lazy cover loading, failure placeholders, and compact card titles.
+- **Other:** Guard stale image responses and only advance the directory cursor once the next catalog request succeeds.
+- **Tests:** Node tests for two-column layout and gateway-local cooldown recovery without upstream restriction bypass. Real image availability requires iPhone retest. 
+- **Scope:** Only `eh-lightreader-cloud`; R and Safari Userscripts v1.3.2 remain unchanged.
+
 ## v1.4.0-pilot.3 · 2026-10-20
 
 - **Observed:** iPhone recording showed 24 search results without thumbnails; gallery detail errored with upstream_content_type.
