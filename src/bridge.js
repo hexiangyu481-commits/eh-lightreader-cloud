@@ -276,7 +276,7 @@ function jumpReader(r,delta){
  if(r.mode==='paged')return changePage(r,delta);
  const target=r.index+delta;
  if(target>=r.pages.length&&r.dir<r.dirs-1){
-   loadMoreDirectory(r).then(()=>jumpReader(r,delta));return;
+   loadMoreDirectory(r).then(added=>{if(added&&!r.stopped)jumpReader(r,delta);});return;
  }
  if(target<0||target>=r.pages.length)return;
  const slot=r.slotNodes.get(target);
