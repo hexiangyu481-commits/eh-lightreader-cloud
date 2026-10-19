@@ -112,10 +112,10 @@ async function api(req){
   return json({ok:true,...detail});
  }
  if(path==="/api/catalog"||path==="/api/page"){
-  const wait=pace("site");if(wait)return error("cooldown",429,wait);
   if(path==="/api/catalog"){
    const gid=u.searchParams.get("gid")||"",token=u.searchParams.get("token")||"",p=Number(u.searchParams.get("p")||0);
    if(!isGallery(gid,token)||!Number.isInteger(p)||p<0||p>500)return error("bad_request",400);
+   const wait=pace("site");if(wait)return error("cooldown",429,wait);
    const res=await remote(SITE+"/g/"+gid+"/"+token+"/"+(p?"?p="+p:""));if(res.error)return error(res.error,res.status);
    const catalog=catalogEntries(res.body,Number(gid),token);if(!catalog.pages.length)return error("catalog_unavailable");
    return json({ok:true,...catalog,gid:Number(gid),token,p});
@@ -123,6 +123,7 @@ async function api(req){
   const value=u.searchParams.get("url")||"";let target;
   try{target=new URL(value)}catch{return error("bad_request",400)}
   if(target.protocol!=="https:"||target.hostname!=="e-hentai.org"||target.port||target.username||target.password||!/^\/s\/[a-z0-9]{6,64}\/\d{1,12}-\d{1,5}\/?$/i.test(target.pathname))return error("bad_request",400);
+  const wait=pace("site");if(wait)return error("cooldown",429,wait);
   const res=await remote(target.href);if(res.error)return error(res.error,res.status);
   const tag=res.body.match(/<img\b[^>]*\bid=["']img["'][^>]*>/i);const a=attrs(tag?.[0]||"");
   const image=urlImage((!a.src||a.src.startsWith("data:"))?a["data-src"]:a.src);if(!image)return error("image_not_found");
