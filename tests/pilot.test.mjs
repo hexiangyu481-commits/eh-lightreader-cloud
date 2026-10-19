@@ -120,3 +120,28 @@ test("cloud sidecar still offers reading when gallery metadata fails",()=>{
   assert.match(bridgeScript,/封面无法加载/);
   assert.doesNotThrow(()=>new Function(bridgeScript));
 });
+
+
+test("reader can resolve a normal image-page link when the site provides HTML",async()=>{
+  const original=globalThis.fetch;
+  globalThis.fetch=async(url)=>{
+    assert.ok(String(url).startsWith("https://e-hentai.org/s/"));
+    return new Response('<html><div id="i3"><img id="img" src="https://ehgt.org/images/page001.jpg"></div></html>',{
+      status:200,headers:{"content-type":"text/html; charset=UTF-8"}
+    });
+  };
+  try{
+    const pageUrl="https://e-hentai.org/s/abcdef1234/123456-1";
+    const result=await cloud.fetch(new Request("https://example.workers.dev/api/page?url="+encodeURIComponent(pageUrl)),{});
+    const body=await result.json();
+    assert.equal(result.status,200,JSON.stringify(body));
+    assert.equal(body.image_url,"https://ehgt.org/images/page001.jpg");
+    assert.equal(body.proxy,false);
+  }finally{globalThis.fetch=original;}
+});
+
+test("gallery directory parser extracts only requested gallery pages",()=>{
+  const html='<a href="https://e-hentai.org/s/abcdef1234/123456-1">one</a><a href="https://e-hentai.org/s/efghij1234/999999-1">other</a>';
+  const p=__testing.catalogEntries(html,123456,"abcdef1234");
+  assert.deepEqual(p.pages.map(v=>v.page),[1]);
+});
