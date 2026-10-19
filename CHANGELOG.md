@@ -1,5 +1,14 @@
 # EH LightReader Cloud — CHANGELOG
 
+## v1.4.0-pilot.6 · 2026-10-20
+
+- **User report:** iPhone screenshot showed the beginning of an image bleeding above the reading header in the cloud overlay. The user preferred the compact, edge-to-edge toolbar/pager arrangement shown in the earlier browser Userscripts version.
+- **Cause:** In pilot.5 the cloud reader scrolled the entire overlay, using a sticky header and toolbar, and called `scrollIntoView()` on a manga page. On mobile Safari this arrangement can scroll ancestors and leave artwork visible in the header area.
+- **UI fix:** Add a reader-only, full-height, isolated layout with a fixed compact heading, mode controls, dedicated middle image-scroll viewport and persistent bottom page navigation. Lock the underlying page while reading; remove the lock on exit. Preserve the user's original two-column gallery and existing reading modes.
+- **Scrolling:** Move IntersectionObserver, passive scroll listener, page-position tracking, and next-page jumps onto the internal image viewport. Remove all `scrollIntoView` usage. Keep progressive image loading, safe-area padding, swipe navigation, local progress/mode persistence, and small loaded-image window.
+- **Tests:** Add regression checks for isolated reader scrolling, pinning, safe areas, no outer-page `scrollIntoView`, and the page-navigation state machine. Real iPhone Safari layout verification is still pending.
+- **Safety:** No changes to R or the working v1.3.2 Safari Userscripts package. No upstream restrictions bypassed.
+
 ## v1.4.0-pilot.5 · 2026-10-20
 
 - **Observed:** pilot.4 now displays a real comic image on iPhone, but the client still showed a roughly three-second gateway cooldown message between catalog and image resolution. The cloud overlay also had only previous/next controls, losing the former vertical continuous reader.

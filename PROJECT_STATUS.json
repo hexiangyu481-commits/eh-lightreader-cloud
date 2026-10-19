@@ -1,20 +1,20 @@
 {
   "project": "EH LightReader Cloud Pilot",
-  "version": "1.4.0-pilot.5",
+  "version": "1.4.0-pilot.6",
   "base_userscripts": "v1.3.2",
   "deployment": {
     "github_main_merged": true,
     "cloudflare_worker_deployed": true,
     "reason": "Cloudflare account was linked and Worker started, but this connector cannot inspect Cloudflare deployment versions.",
     "r_project_modified": false,
-    "verification": "Code for pilot.5 is in Cloudflare-connected GitHub main; GitHub CI succeeded. Live Cloudflare Worker version and new iPhone long-scroll behavior still require verification. The previous pilot.4 displayed a real image on iPhone."
+    "verification": "Cloudflare-linked GitHub repo has pilot.6 source; CI confirms mocked checks, live Cloudflare deployment and real iPhone layout pending. Pilot.5 user screenshot demonstrated real manga images."
   },
   "tests": {
-    "github_actions_offline": "21/21 passed on GitHub Actions run 39305906332 (Node syntax + mocked endpoint/reader regression tests), 2026-10-20.",
+    "github_actions_offline": "23 unit/regression tests passed on the layout-fix source before release (see GitHub Actions); release-version verification pending.",
     "cloudflare_live_api": "Unavailable directly from assistant; user to confirm health version 1.4.0-pilot.3 after deployment.",
     "site_egress": "not_tested",
-    "iphone_pwa": "Pilot.4 showed image 1/20 on iPhone; pilot.5 code restores continuous/paged switch and removes fixed 3.25s local cooldown. Actual iPhone verification pending.",
-    "reader_images": "Real image 1 of 20 was shown on iPhone under pilot.4. Pilot.5 continuous reading and subsequent pages remain unverified on device."
+    "iphone_pwa": "User iPhone screenshot of pilot.5 showed artwork appearing above the reader controls, unlike the older Userscripts web layout. Pilot.6 separates a fixed header, dedicated image scroll area and footer; requires device retest.",
+    "reader_images": "Working sample artwork shown in user screenshots; subsequent pages and Safari visual viewport/layout of pilot.6 not yet checked on device."
   },
   "limits": [
     "No user login or cookies are imported.",
@@ -23,9 +23,9 @@
     "Short best-effort 950ms Worker-isolate pacing does not guarantee global limits; actual source 403/429/challenges are never bypassed or automatically retried."
   ],
   "next": [
-    "Confirm live Cloudflare version from /api/health after build.",
-    "On iPhone, switch between ↓ 连续阅读 and ⇆ 左右翻页; test initial page, scroll through three pages, left/right swipes, and progress after reopening.",
-    "For galleries over one directory, verify lazy next-directory loading and bounded RAM; genuine upstream blocks will be reported without automated retries.",
-    "Keep v1.3.2 Userscripts available until full reader acceptance."
+    "Confirm production /api/health shows 1.4.0-pilot.6 after Cloudflare deploy.",
+    "Open a long vertical manga in iPhone Safari; verify no image appears above the pinned header, and bottom pager remains in place.",
+    "Switch between continuous and horizontal swipe; test progress save, scrolled image loading, return to gallery and long-book memory.",
+    "If a layout gap remains, collect the screenshot and iOS Safari/standalone mode; retain stable v1.3.2 Userscripts until confirmed."
   ]
 }
