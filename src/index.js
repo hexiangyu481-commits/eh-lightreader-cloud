@@ -39,13 +39,31 @@ async function apiMeta(items){
  if(!Array.isArray(res.parsed?.gmetadata))return{error:"bad_metadata",status:502};
  return{items:res.parsed.gmetadata};
 }
+function extractCover(fragment){
+ const candidates=[];
+ for(const tag of String(fragment||"").match(/<img\b[^>]*>/gi)||[]){
+  const a=attrs(tag);candidates.push(a["data-src"],a["data-original"],a.src);
+  if(a.srcset)candidates.push(a.srcset.split(",")[0]?.trim().split(/\s+/)[0]);
+ }
+ for(const m of String(fragment||"").matchAll(/(?:background-image|background)\s*:\s*url\(\s*["']?([^"')]+)["']?\s*\)/gi))candidates.push(m[1]);
+ for(let src of candidates){
+  if(!src)continue;src=String(src).trim().replace(/&amp;/g,"&");
+  if(!src.startsWith("https://")&&!src.startsWith("//"))continue;
+  const cover=urlImage(src);
+  if(!cover)continue;
+  const host=new URL(cover).hostname.toLowerCase();
+  if(host==="ehgt.org"||host.endsWith(".ehgt.org")||host==="e-hentai.org"||host.endsWith(".e-hentai.org"))return cover;
+ }
+ return "";
+}
 function searchEntries(html){
  const entries=[],seen=new Set();
  for(const m of html.matchAll(/<a\b[^>]*href=["'](?:https:\/\/e-hentai\.org)?\/g\/(\d+)\/([a-z0-9]{6,64})\/?(?:\?[^"']*)?["'][^>]*>[\s\S]*?<\/a>/gi)){
   const gid=Number(m[1]);if(seen.has(gid))continue;seen.add(gid);
   const name=m[0].match(/<div[^>]*class=["'][^"']*glink[^"']*["'][^>]*>([\s\S]*?)<\/div>/i);
   const coverTag=m[0].match(/<img\b[^>]*>/i);const img=attrs(coverTag?.[0]||"");
-  entries.push({gid,token:m[2],url:SITE+"/g/"+gid+"/"+m[2]+"/",title:clean(name?.[1]||img.alt||"").slice(0,260),cover:urlImage(img["data-src"]||img.src)});
+  const cover=extractCover(m[0]);
+  entries.push({gid,token:m[2],url:SITE+"/g/"+gid+"/"+m[2]+"/",title:clean(name?.[1]||img.alt||"").slice(0,260),cover});
   if(entries.length>=24)break;
  }
  return entries;
@@ -125,3 +143,4 @@ export default{async fetch(request,env){
  headers.set("cache-control","no-store, max-age=0");
  return new Response(response.body,{status:response.status,statusText:response.statusText,headers});
 }};
+export const __testing={remote,extractCover,searchEntries,catalogEntries};
