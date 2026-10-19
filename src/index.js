@@ -1,7 +1,17 @@
 /* EH LightReader Cloud Pilot. No R dependencies, cookies or unrestricted proxy. */
 import {bridgeScript} from "./bridge.js";
 const SITE="https://e-hentai.org", META="https://api.e-hentai.org/api.php";
-let lastSite=0,lastMeta=0;const cache=new Map(),detailCache=new Map();
+// Reserve request slots atomically per Worker isolate; no fixed 3-second error cycle.
+// Never retry upstream 403/429/challenges. This is a best-effort local request queue,
+// not a guarantee that independent Worker isolates share a rate limit.
+let nextSiteAt=0,nextMetaAt=0;const cache=new Map(),detailCache=new Map();
+async function pace(kind){
+ const now=Date.now(),gap=kind==="site"?950:500;
+ const reserved=Math.max(now,kind==="site"?nextSiteAt:nextMetaAt);
+ if(kind==="site")nextSiteAt=reserved+gap;else nextMetaAt=reserved+gap;
+ const wait=reserved-now;
+ if(wait>0)await new Promise(resolve=>setTimeout(resolve,wait));
+}
 const DETAIL_CACHE_TTL=5*60*1000;
 function rememberDetail(x){if(!isGallery(x.gid,x.token))return;detailCache.set(x.gid+":"+x.token.toLowerCase(),{at:Date.now()+DETAIL_CACHE_TTL,item:{...x}});if(detailCache.size>160)detailCache.delete(detailCache.keys().next().value);}
 function recalledDetail(gid,token){const c=detailCache.get(Number(gid)+":"+String(token).toLowerCase());if(!c)return null;if(c.at<Date.now()){detailCache.delete(Number(gid)+":"+String(token).toLowerCase());return null;}return {...c.item};}
@@ -11,7 +21,6 @@ const isGallery=(g,t)=>/^\d{1,12}$/.test(String(g))&&/^[a-z0-9]{6,64}$/i.test(St
 const clean=s=>String(s||"").replace(/<[^>]+>/g," ").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/\s+/g," ").trim();
 const attrs=s=>{let result={};for(let m of String(s||"").matchAll(/([\w-]+)\s*=\s*(["'])(.*?)\2/gs))result[m[1].toLowerCase()]=m[3];return result};
 const urlImage=s=>{if(!s)return"";try{const u=new URL(s,SITE);return u.protocol==="https:"&&!u.username&&!u.password&&!u.port?u.href:""}catch{return""}};
-function pace(kind){const now=Date.now(),min=kind==="site"?3250:1400,last=kind==="site"?lastSite:lastMeta,wait=min-(now-last);if(wait>0)return Math.ceil(wait/1000);if(kind==="site")lastSite=now;else lastMeta=now;return 0}
 async function remote(u,payload){
  let resp;try{resp=await fetch(u,{method:payload?"POST":"GET",headers:{"accept":payload?"application/json":"text/html,application/xhtml+xml",...(payload?{"content-type":"application/json"}:{})},body:payload?JSON.stringify(payload):undefined,redirect:"manual",signal:AbortSignal.timeout(12000)})}catch{return{error:"upstream_network_error",status:502}};
  if(resp.status===429)return{error:"upstream_rate_limited",status:429};
@@ -33,7 +42,7 @@ async function remote(u,payload){
  return{body};
 }
 async function apiMeta(items){
- const wait=pace("meta");if(wait)return{error:"cooldown",status:429,wait};
+ await pace("meta");
  const res=await remote(META,{method:"gdata",gidlist:items.map(x=>[x.gid,x.token]).slice(0,24),namespace:1});if(res.error)return res;
  if(res.parsed?.error)return{error:"upstream_metadata_error",status:502};
  if(!Array.isArray(res.parsed?.gmetadata))return{error:"bad_metadata",status:502};
@@ -76,13 +85,13 @@ function catalogEntries(html,gid,token){
 }
 async function api(req){
  const u=new URL(req.url),path=u.pathname;
- if(path==="/api/health")return json({ok:true,service:"eh-lightreader-cloud",version:"1.4.0-pilot.4",r_unchanged:true,userscripts_required:false,real_site_tested:false});
+ if(path==="/api/health")return json({ok:true,service:"eh-lightreader-cloud",version:"1.4.0-pilot.5",r_unchanged:true,userscripts_required:false,real_site_tested:false});
  if(req.method!=="GET")return error("method_not_allowed",405);
  if(path==="/api/search"){
   const q=(u.searchParams.get("q")||"").trim(),page=Number(u.searchParams.get("page")||1),cat=Number(u.searchParams.get("category")||0);
   if(q.length>200||/[\x00-\x1f]/.test(q)||!Number.isInteger(page)||page<1||page>500||![0,1,2,4,8,16,32,64,128,256,512].includes(cat))return error("bad_request",400);
   const key=JSON.stringify([q,page,cat]);const cached=cache.get(key);if(cached&&cached.at>Date.now())return json(cached.data);
-  const wait=pace("site");if(wait)return error("cooldown",429,wait);
+  await pace("site");
   const query=new URLSearchParams({page:String(page-1)});if(q)query.set("f_search",q);if(cat)query.set("f_cats",String(1023-cat));
   const res=await remote(SITE+"/?"+query);if(res.error)return error(res.error,res.status);
   let items=searchEntries(res.body),warnings=[];
@@ -115,7 +124,7 @@ async function api(req){
   if(path==="/api/catalog"){
    const gid=u.searchParams.get("gid")||"",token=u.searchParams.get("token")||"",p=Number(u.searchParams.get("p")||0);
    if(!isGallery(gid,token)||!Number.isInteger(p)||p<0||p>500)return error("bad_request",400);
-   const wait=pace("site");if(wait)return error("cooldown",429,wait);
+   await pace("site");
    const res=await remote(SITE+"/g/"+gid+"/"+token+"/"+(p?"?p="+p:""));if(res.error)return error(res.error,res.status);
    const catalog=catalogEntries(res.body,Number(gid),token);if(!catalog.pages.length)return error("catalog_unavailable");
    return json({ok:true,...catalog,gid:Number(gid),token,p});
@@ -123,7 +132,7 @@ async function api(req){
   const value=u.searchParams.get("url")||"";let target;
   try{target=new URL(value)}catch{return error("bad_request",400)}
   if(target.protocol!=="https:"||target.hostname!=="e-hentai.org"||target.port||target.username||target.password||!/^\/s\/[a-z0-9]{6,64}\/\d{1,12}-\d{1,5}\/?$/i.test(target.pathname))return error("bad_request",400);
-  const wait=pace("site");if(wait)return error("cooldown",429,wait);
+  await pace("site");
   const res=await remote(target.href);if(res.error)return error(res.error,res.status);
   const tag=res.body.match(/<img\b[^>]*\bid=["']img["'][^>]*>/i);const a=attrs(tag?.[0]||"");
   const image=urlImage((!a.src||a.src.startsWith("data:"))?a["data-src"]:a.src);if(!image)return error("image_not_found");
