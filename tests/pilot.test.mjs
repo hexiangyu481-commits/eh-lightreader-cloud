@@ -198,3 +198,55 @@ test("upstream rate limit and challenge are never automatically retried",async()
     assert.equal(count,1,upstreamError+' must be single-shot');
   }
 });
+
+
+test("catalog followed immediately by first image does not produce the old three-second cooldown error",async()=>{
+  const oldFetch=globalThis.fetch;
+  const gid=734521,token="abcdef1234";
+  globalThis.fetch=async url=>{
+    if(String(url).includes("/g/734521/"))return new Response(
+      '<html><a href="/s/abcdef1234/734521-1">Page 1</a></html>',
+      {headers:{"content-type":"text/html"}});
+    if(String(url).includes("/s/abcdef1234/734521-1"))return new Response(
+      '<html><div id="i3"><img id="img" src="https://ehgt.org/images/page.jpg"></div></html>',
+      {headers:{"content-type":"text/html"}});
+    throw Error("Unexpected upstream URL: "+url);
+  };
+  try{
+    const catalog=await cloud.fetch(new Request(
+      "https://example.workers.dev/api/catalog?gid="+gid+"&token="+token),{});
+    assert.equal(catalog.status,200,await catalog.text());
+    const page=await cloud.fetch(new Request(
+      "https://example.workers.dev/api/page?url="+
+      encodeURIComponent("https://e-hentai.org/s/abcdef1234/734521-1")),{});
+    const d=await page.json();
+    assert.equal(page.status,200,JSON.stringify(d));
+    assert.equal(d.image_url,"https://ehgt.org/images/page.jpg");
+  }finally{globalThis.fetch=oldFetch;}
+});
+
+test("continuous reading and page-swiping controls are both present",()=>{
+  assert.match(bridgeScript,/↓ 连续阅读/);
+  assert.match(bridgeScript,/⇆ 左右翻页/);
+  assert.match(bridgeScript,/ehrweb:v1:readerMode/);
+  assert.match(bridgeScript,/function renderContinuous\(r\)/);
+  assert.match(bridgeScript,/new IntersectionObserver/);
+  assert.match(bridgeScript,/function renderPaged\(r\)/);
+  assert.match(bridgeScript,/ontouchstart/);
+  assert.match(bridgeScript,/ontouchend/);
+  assert.match(bridgeScript,/referrerPolicy='no-referrer'/);
+  assert.match(bridgeScript,/Math\.abs\(i-r\.index\)>5/);
+  assert.match(bridgeScript,/function saveProgress\(r\)/);
+  assert.match(bridgeScript,/function restoredIndex\(x,count\)/);
+  assert.doesNotThrow(()=>new Function(bridgeScript));
+});
+
+test("remote access denial remains a terminal response",async()=>{
+  const oldFetch=globalThis.fetch;
+  globalThis.fetch=async()=>new Response("access denied",{status:403,headers:{"content-type":"text/plain"}});
+  try{
+    const res=await __testing.remote("https://e-hentai.org/s/abcdef1234/734521-1");
+    assert.equal(res.error,"upstream_access_denied");
+    assert.equal(res.status,403);
+  }finally{globalThis.fetch=oldFetch;}
+});
