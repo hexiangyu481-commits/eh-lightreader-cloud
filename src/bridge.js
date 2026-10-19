@@ -109,7 +109,7 @@ function stopReader(r){
  r.stopped=true;
  if(r.observer){r.observer.disconnect();r.observer=null;}
  if(r.scrollListener&&panel)panel.removeEventListener('scroll',r.scrollListener);
- r.scrollListener=null;r.queue.length=0;
+ r.scrollListener=null;r.queue.length=0;r.loadedSlots.clear();
 }
 function setCurrent(r,index){
  if(r.stopped||reader!==r||!Number.isInteger(index)||index<0||index>=r.pages.length||r.index===index)return;
@@ -167,7 +167,7 @@ function preloadNear(r,index){
 }
 function slotError(slot,r,index,text){
  if(slot.dataset.index!==String(index)||r.stopped||reader!==r)return;
- slot.replaceChildren();
+ slot.replaceChildren();r.loadedSlots.delete(index);
  const p=node('div','ehr-reader-error',text);slot.append(p);
  const retry=node('button','ehr-cloud-go','重试本页');retry.type='button';
  retry.onclick=()=>{slot.dataset.loading='';paintSlot(r,slot,index);};
@@ -182,7 +182,7 @@ async function paintSlot(r,slot,index){
    const url=await queueImageUrl(r,index,true);
    if(r.stopped||reader!==r||!slot.isConnected||slot.dataset.index!==String(index))return;
    const img=node('img');img.alt='漫画第 '+(index+1)+' 页';img.decoding='async';
-   img.referrerPolicy='no-referrer';img.loading='eager';
+   img.referrerPolicy='no-referrer';img.loading='eager';r.loadedSlots.add(index);
    img.onload=()=>{
      if(!img.isConnected)return;
      slot.dataset.loading='ready';
@@ -224,7 +224,7 @@ function switchMode(r,mode){
 function renderPaged(r){
  if(r.stopped||reader!==r)return;
  r.stage.className='ehr-reader-stage ehr-reader-paged';
- r.stage.replaceChildren();
+ r.stage.replaceChildren();r.loadedSlots.clear();
  const slot=node('div','ehr-reader-slot');r.stage.append(slot);
  const nav=node('div','ehr-reader-nav');
  const prev=node('button','ehr-cloud-go','← 上一页');
@@ -285,29 +285,41 @@ function appendScrollSlots(r){
 function updateScrollPosition(r){
  if(r.stopped||r.mode!=='scroll'||reader!==r||!panel)return;
  const targetTop=panel.getBoundingClientRect().top+130;
- let current=r.index;
- for(const [i,slot] of r.slotNodes){
+ let current=r.index,found=false;
+ // Read layout only around the current page during normal scrolling.
+ for(let i=Math.max(0,r.index-4);i<=Math.min(r.pages.length-1,r.index+8);i++){
+   const slot=r.slotNodes.get(i);if(!slot)continue;
    const rect=slot.getBoundingClientRect();
-   if(rect.top<=targetTop&&rect.bottom>targetTop){current=i;break;}
+   if(rect.top<=targetTop&&rect.bottom>targetTop){current=i;found=true;break;}
+ }
+ // Large scrollbar jumps are uncommon; handle them using a full scan only then.
+ if(!found){
+   for(const [i,slot] of r.slotNodes){
+     const rect=slot.getBoundingClientRect();
+     if(rect.top<=targetTop&&rect.bottom>targetTop){current=i;break;}
+   }
  }
  setCurrent(r,current);
- // Release offscreen DOM image elements to bound memory. Their page URL remains
- // in the small per-reader LRU; browser can reuse the cached direct image.
- for(const [i,slot] of r.slotNodes){
-   const img=slot.querySelector('img');
-   if(img&&Math.abs(i-r.index)>5){
+ // Only inspect images which actually exist. Avoid scanning a thousand placeholder
+ // nodes every animation frame for long galleries.
+ for(const i of [...r.loadedSlots]){
+   if(Math.abs(i-r.index)<=5)continue;
+   const slot=r.slotNodes.get(i);
+   const img=slot?.querySelector('img');
+   if(img&&slot){
      slot.style.minHeight=Math.max(slot.offsetHeight,170)+'px';
      img.remove();
      slot.replaceChildren(node('div','ehr-reader-placeholder','第 '+(i+1)+' 页'));
      slot.dataset.loading='';
    }
+   r.loadedSlots.delete(i);
  }
  if(r.index>=r.pages.length-4&&r.dir+1<r.dirs)loadMoreDirectory(r);
 }
 function renderContinuous(r){
  if(r.stopped||reader!==r)return;
  r.stage.className='ehr-reader-stage ehr-reader-scroll';
- r.stage.replaceChildren();r.slotNodes=new Map();
+ r.stage.replaceChildren();r.slotNodes=new Map();r.loadedSlots.clear();
  r.observer=new IntersectionObserver(entries=>{
    if(r.stopped||r.mode!=='scroll'||reader!==r)return;
    for(const e of entries){
@@ -334,7 +346,7 @@ async function read(x){
  if(reader)stopReader(reader);
  const mode=readingMode();
  const r={x,pages:[],index:0,dir:0,dirs:1,mode,queue:[],pending:new Map(),urls:new Map(),running:false,
-   blocked:'',stopped:false,observer:null,scrollListener:null,slotNodes:new Map(),stage:null,counter:null,loadingMore:false};
+   blocked:'',stopped:false,observer:null,scrollListener:null,slotNodes:new Map(),loadedSlots:new Set(),stage:null,counter:null,loadingMore:false};
  reader=r;
  open('漫画阅读');const m=message('正在加载漫画目录…');
  try{
