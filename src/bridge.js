@@ -3,9 +3,9 @@ export const bridgeScript=String.raw`(()=>{'use strict';
 let panel=null,reader=null;
 const tags={'中文':'language:chinese$','日文':'language:japanese$','英文':'language:english$','全彩':'other:full_color$','黑白':'-other:full_color$'};
 const categories={'同人志':2,'漫画':4,'画师CG':8,'游戏CG':16,'图集':32,'Cosplay':64,'亚洲影像':128,'非成人':256};
-const st=document.createElement('style');st.textContent='.ehr-cloud{position:fixed;inset:0;z-index:90;background:var(--bg,#101016);color:var(--fg,#f6f4ff);overflow:auto;padding:calc(env(safe-area-inset-top) + 15px) 18px calc(env(safe-area-inset-bottom) + 24px);font-family:-apple-system,sans-serif}.ehr-cloud-head{position:sticky;top:0;background:var(--bg,#101016);display:flex;gap:12px;align-items:center;padding:8px 0 16px;z-index:2}.ehr-cloud-head h2{font-size:18px;flex:1}.ehr-cloud-back,.ehr-cloud-go{border:1px solid var(--stroke,#555);border-radius:12px;background:var(--panel,#222);color:inherit;min-height:48px;min-width:48px;padding:0 14px;font-size:14px}.ehr-cloud-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0;align-items:stretch}.ehr-cloud-card{width:100%;min-width:0;min-height:240px;display:flex;flex-direction:column;align-items:stretch;text-align:left;padding:0;margin:0;overflow:hidden;touch-action:manipulation;border:1px solid var(--stroke,#555);border-radius:17px;background:var(--panel,#222);color:inherit}.ehr-cloud-card img,.ehr-cloud-thumb-empty{display:block;width:100%;height:auto;aspect-ratio:3/4;object-fit:cover;background:#51437c}.ehr-cloud-thumb-empty{display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#e2d4ff;padding:9px;box-sizing:border-box}.ehr-cloud-info{display:block;min-width:0;padding:10px}.ehr-cloud-card strong{font-size:13px;line-height:1.45;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;overflow-wrap:anywhere}.ehr-cloud-card small{display:block;font-size:11px;color:var(--sub,#bbb);margin-top:7px}.ehr-cloud-hint{font-size:12px;line-height:1.7;color:var(--sub,#bbb)}.ehr-cloud-msg{padding:18px;background:var(--panel,#222);border:1px solid var(--stroke,#555);border-radius:15px;font-size:13px;line-height:1.7}.ehr-cloud-actions{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0}.ehr-cloud-image{display:block;max-width:100%;height:auto;margin:12px auto;background:#252035}';st.textContent+=' .ehr-reader-toolbar{position:sticky;top:64px;z-index:3;display:flex;align-items:center;gap:8px;padding:8px 0 12px;background:var(--bg,#101016)}.ehr-reader-toolbar button{flex:1;min-height:46px;font-size:13px}.ehr-reader-toolbar button[aria-pressed=true]{background:#6b4cb8;border-color:#9b81e5;color:#fff}.ehr-reader-counter{font-size:12px;text-align:center;color:var(--sub,#bbb);padding:4px 0}.ehr-reader-stage{min-height:200px}.ehr-reader-paged{touch-action:pan-y;text-align:center;min-height:65vh;display:flex;flex-direction:column;justify-content:flex-start}.ehr-reader-paged img{display:block;max-width:100%;max-height:calc(100dvh - 210px);width:auto;height:auto;margin:0 auto;object-fit:contain}.ehr-reader-scroll{display:block}.ehr-reader-scroll .ehr-reader-slot{margin:0;padding:0;position:relative}.ehr-reader-scroll .ehr-reader-slot img{width:100%;height:auto;display:block;margin:0;border:0}.ehr-reader-slot .ehr-reader-placeholder{min-height:180px;display:flex;align-items:center;justify-content:center;color:var(--sub,#bbb);font-size:12px;background:#1c1925}.ehr-reader-paged .ehr-reader-placeholder{min-height:45vh}.ehr-reader-error{padding:20px 14px;text-align:center;font-size:13px;color:#efc6ca;background:#262028;line-height:1.6}.ehr-reader-nav{display:flex;gap:10px;margin:16px 0}.ehr-reader-nav button{flex:1;min-height:48px}@media(min-width:700px){.ehr-reader-stage{max-width:720px;margin:auto}}';document.head.append(st);
+const st=document.createElement('style');st.textContent='.ehr-cloud{position:fixed;inset:0;z-index:90;background:var(--bg,#101016);color:var(--fg,#f6f4ff);overflow:auto;padding:calc(env(safe-area-inset-top) + 15px) 18px calc(env(safe-area-inset-bottom) + 24px);font-family:-apple-system,sans-serif}.ehr-cloud-head{position:sticky;top:0;background:var(--bg,#101016);display:flex;gap:12px;align-items:center;padding:8px 0 16px;z-index:2}.ehr-cloud-head h2{font-size:18px;flex:1}.ehr-cloud-back,.ehr-cloud-go{border:1px solid var(--stroke,#555);border-radius:12px;background:var(--panel,#222);color:inherit;min-height:48px;min-width:48px;padding:0 14px;font-size:14px}.ehr-cloud-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0;align-items:stretch}.ehr-cloud-card{width:100%;min-width:0;min-height:240px;display:flex;flex-direction:column;align-items:stretch;text-align:left;padding:0;margin:0;overflow:hidden;touch-action:manipulation;border:1px solid var(--stroke,#555);border-radius:17px;background:var(--panel,#222);color:inherit}.ehr-cloud-card img,.ehr-cloud-thumb-empty{display:block;width:100%;height:auto;aspect-ratio:3/4;object-fit:cover;background:#51437c}.ehr-cloud-thumb-empty{display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:#e2d4ff;padding:9px;box-sizing:border-box}.ehr-cloud-info{display:block;min-width:0;padding:10px}.ehr-cloud-card strong{font-size:13px;line-height:1.45;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;overflow-wrap:anywhere}.ehr-cloud-card small{display:block;font-size:11px;color:var(--sub,#bbb);margin-top:7px}.ehr-cloud-hint{font-size:12px;line-height:1.7;color:var(--sub,#bbb)}.ehr-cloud-msg{padding:18px;background:var(--panel,#222);border:1px solid var(--stroke,#555);border-radius:15px;font-size:13px;line-height:1.7}.ehr-cloud-actions{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0}.ehr-cloud-image{display:block;max-width:100%;height:auto;margin:12px auto;background:#252035}';st.textContent+=' .ehr-cloud.is-reader{position:fixed!important;inset:0!important;z-index:2147483646!important;width:100%!important;height:100vh!important;height:100dvh!important;max-height:100dvh!important;display:flex!important;flex-direction:column!important;box-sizing:border-box!important;overflow:hidden!important;padding:0!important;margin:0!important;isolation:isolate!important;contain:layout style;overscroll-behavior:none;background:#101016!important}.ehr-cloud.is-reader .ehr-cloud-head{position:relative!important;top:auto!important;flex:none;z-index:2;display:flex;align-items:center;min-height:54px;margin:0!important;padding:calc(env(safe-area-inset-top) + 5px) 12px 5px;background:#211f2a;border-bottom:1px solid #474352;box-sizing:border-box}.ehr-cloud.is-reader .ehr-cloud-head h2{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;font-weight:600;margin:0}.ehr-cloud.is-reader .ehr-cloud-back{min-width:44px;min-height:44px;font-size:20px;padding:0}.ehr-cloud.is-reader .ehr-reader-toolbar{position:relative!important;top:auto!important;flex:none;z-index:2;margin:0;padding:5px 12px;background:#211f2a;box-sizing:border-box;border-bottom:1px solid #33303b}.ehr-cloud.is-reader .ehr-reader-toolbar button{min-height:38px;font-size:12px}.ehr-reader-scrollport{flex:1 1 auto;min-height:0;min-width:0;overflow:auto;overflow-x:hidden;position:relative;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;background:#101016;scrollbar-width:thin}.ehr-cloud.is-reader .ehr-reader-stage{max-width:100%;width:100%;margin:0 auto;min-height:100%;box-sizing:border-box}.ehr-cloud.is-reader .ehr-reader-scroll .ehr-reader-slot img{width:100%;max-width:100%;height:auto;display:block;margin:0;object-fit:contain}.ehr-reader-footer{flex:none;display:flex;justify-content:center;align-items:center;gap:8px;min-height:52px;padding:5px 12px calc(env(safe-area-inset-bottom) + 5px);margin:0;background:#211f2a;border-top:1px solid #3d394a;box-sizing:border-box;z-index:3}.ehr-reader-footer button{min-width:48px;min-height:42px;font-size:19px;border-radius:11px;padding:0 13px}.ehr-reader-footer .ehr-reader-counter{min-width:88px;flex:1;max-width:160px;color:#d5cedb;font-size:14px}.ehr-reader-paged{touch-action:pan-y}.ehr-cloud.is-reader .ehr-reader-paged img{max-height:none;max-width:100%;width:auto;height:auto;margin:auto}.ehr-cloud.is-reader .ehr-reader-paged .ehr-reader-slot{width:100%}@media(min-width:800px){.ehr-cloud.is-reader .ehr-reader-stage{max-width:780px}}.ehr-reader-toolbar{position:sticky;top:64px;z-index:3;display:flex;align-items:center;gap:8px;padding:8px 0 12px;background:var(--bg,#101016)}.ehr-reader-toolbar button{flex:1;min-height:46px;font-size:13px}.ehr-reader-toolbar button[aria-pressed=true]{background:#6b4cb8;border-color:#9b81e5;color:#fff}.ehr-reader-counter{font-size:12px;text-align:center;color:var(--sub,#bbb);padding:4px 0}.ehr-reader-stage{min-height:200px}.ehr-reader-paged{touch-action:pan-y;text-align:center;min-height:65vh;display:flex;flex-direction:column;justify-content:flex-start}.ehr-reader-paged img{display:block;max-width:100%;max-height:calc(100dvh - 210px);width:auto;height:auto;margin:0 auto;object-fit:contain}.ehr-reader-scroll{display:block}.ehr-reader-scroll .ehr-reader-slot{margin:0;padding:0;position:relative}.ehr-reader-scroll .ehr-reader-slot img{width:100%;height:auto;display:block;margin:0;border:0}.ehr-reader-slot .ehr-reader-placeholder{min-height:180px;display:flex;align-items:center;justify-content:center;color:var(--sub,#bbb);font-size:12px;background:#1c1925}.ehr-reader-paged .ehr-reader-placeholder{min-height:45vh}.ehr-reader-error{padding:20px 14px;text-align:center;font-size:13px;color:#efc6ca;background:#262028;line-height:1.6}.ehr-reader-nav{display:flex;gap:10px;margin:16px 0}.ehr-reader-nav button{flex:1;min-height:48px}@media(min-width:700px){.ehr-reader-stage{max-width:720px;margin:auto}}';document.head.append(st);
 const node=(tag,className='',text='')=>{const n=document.createElement(tag);n.className=className;n.textContent=text;return n;};
-function close(){if(reader){stopReader(reader);reader=null;}if(panel)panel.remove();panel=null;}
+function close(){if(reader){stopReader(reader);reader=null;}if(panel){panel.remove();panel=null;}}
 function open(title){if(!panel){panel=node('div','ehr-cloud');document.body.append(panel);}panel.replaceChildren();panel.scrollTop=0;const head=node('div','ehr-cloud-head');const back=node('button','ehr-cloud-back','←');back.type='button';back.onclick=close;head.append(back,node('h2','',title));panel.append(head);return panel;}
 function message(text){const n=node('p','ehr-cloud-msg',text);panel.append(n);return n;}
 const waitMs=ms=>new Promise(resolve=>setTimeout(resolve,ms));
@@ -108,13 +108,13 @@ function restoredIndex(x,count){
 function stopReader(r){
  r.stopped=true;
  if(r.observer){r.observer.disconnect();r.observer=null;}
- if(r.scrollListener&&panel)panel.removeEventListener('scroll',r.scrollListener);
- r.scrollListener=null;r.queue.length=0;r.loadedSlots.clear();
+ if(r.scrollListener&&r.scroller)r.scroller.removeEventListener('scroll',r.scrollListener);
+ r.scrollListener=null;r.queue.length=0;r.loadedSlots.clear();if(panel)panel.classList.remove('is-reader');
 }
 function setCurrent(r,index){
  if(r.stopped||reader!==r||!Number.isInteger(index)||index<0||index>=r.pages.length||r.index===index)return;
  r.index=index;saveProgress(r);
- if(r.counter)r.counter.textContent='第 '+(index+1)+' / '+r.pages.length+' 页';
+ refreshReaderNav(r);
 }
 // The queue resolves one normal image-page URL at a time. The Worker reserves
 // short upstream slots, while this client only preloads a small window.
@@ -196,27 +196,35 @@ async function paintSlot(r,slot,index){
 }
 function renderReaderShell(r){
  if(r.stopped||reader!==r)return;
- open('阅读 · '+(r.index+1)+' / '+r.pages.length);
+ open(r.x.title||'漫画阅读');panel.classList.add('is-reader');
  const back=panel.querySelector('.ehr-cloud-back');
  if(back)back.onclick=()=>{stopReader(r);reader=null;detail(r.x);};
  const bar=node('div','ehr-reader-toolbar');
  const scroll=node('button','ehr-cloud-go','↓ 连续阅读');
- const paged=node('button','ehr-cloud-go','⇆ 左右翻页');
+ const paged=node('button','ehr-cloud-go','⇆ 单页阅读');
  scroll.type='button';paged.type='button';
  scroll.setAttribute('aria-pressed',String(r.mode==='scroll'));
  paged.setAttribute('aria-pressed',String(r.mode==='paged'));
  scroll.onclick=()=>switchMode(r,'scroll');
  paged.onclick=()=>switchMode(r,'paged');
  bar.append(scroll,paged);panel.append(bar);
+ r.scroller=node('div','ehr-reader-scrollport');
+ r.stage=node('section','ehr-reader-stage');r.scroller.append(r.stage);
+ panel.append(r.scroller);
+ const footer=node('div','ehr-reader-footer');
+ const prev=node('button','ehr-cloud-go','‹'),next=node('button','ehr-cloud-go','›');
+ prev.type='button';next.type='button';
+ prev.setAttribute('aria-label','上一页');next.setAttribute('aria-label','下一页');
+ prev.onclick=()=>jumpReader(r,-1);next.onclick=()=>jumpReader(r,1);
+ r.prevButton=prev;r.nextButton=next;
  r.counter=node('div','ehr-reader-counter','第 '+(r.index+1)+' / '+r.pages.length+' 页');
- panel.append(r.counter);
- r.stage=node('section','ehr-reader-stage');
- panel.append(r.stage);
+ footer.append(prev,r.counter,next);panel.append(footer);
+ refreshReaderNav(r);
 }
 function switchMode(r,mode){
  if(r.stopped||reader!==r||r.mode===mode)return;
  if(r.observer){r.observer.disconnect();r.observer=null;}
- if(r.scrollListener&&panel)panel.removeEventListener('scroll',r.scrollListener);
+ if(r.scrollListener&&r.scroller)r.scroller.removeEventListener('scroll',r.scrollListener);
  r.scrollListener=null;
  r.mode=mode;saveMode(mode);renderReaderShell(r);
  if(mode==='scroll')renderContinuous(r);else renderPaged(r);
@@ -226,15 +234,8 @@ function renderPaged(r){
  r.stage.className='ehr-reader-stage ehr-reader-paged';
  r.stage.replaceChildren();r.loadedSlots.clear();
  const slot=node('div','ehr-reader-slot');r.stage.append(slot);
- const nav=node('div','ehr-reader-nav');
- const prev=node('button','ehr-cloud-go','← 上一页');
- const next=node('button','ehr-cloud-go','下一页 →');
- prev.disabled=r.index===0;
- prev.onclick=()=>changePage(r,-1);
- next.onclick=()=>changePage(r,1);
- nav.append(prev,next);r.stage.append(nav);
  const i=r.index;paintSlot(r,slot,i);
- // A light swipe in the paged reader works without swallowing vertical scroll.
+ // A horizontal gesture only changes pages when horizontal travel dominates.
  let touch=null;
  r.stage.ontouchstart=e=>{if(e.touches.length===1)touch={x:e.touches[0].clientX,y:e.touches[0].clientY};};
  r.stage.ontouchend=e=>{
@@ -243,7 +244,8 @@ function renderPaged(r){
    touch=null;
    if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.5)changePage(r,dx<0?1:-1);
  };
- if(panel)panel.scrollTop=0;
+ if(r.scroller)r.scroller.scrollTop=0;
+ refreshReaderNav(r);
 }
 async function loadMoreDirectory(r){
  if(r.stopped||r.dir>=r.dirs-1||r.loadingMore)return false;
@@ -258,10 +260,31 @@ async function loadMoreDirectory(r){
    r.pages.push(...incoming);
    r.dirs=Math.max(r.dirs,Number(data.directory_pages)||1);
    if(r.mode==='scroll')appendScrollSlots(r);
-   if(r.counter)r.counter.textContent='第 '+(r.index+1)+' / '+r.pages.length+' 页';
+   refreshReaderNav(r);
    return incoming.length>0;
  }catch(e){r.directoryError=e.message;return false;}
  finally{r.loadingMore=false;}
+}
+function refreshReaderNav(r){
+ if(r.stopped||reader!==r)return;
+ if(r.counter)r.counter.textContent=(r.index+1)+' / '+r.pages.length;
+ if(r.prevButton)r.prevButton.disabled=r.index<=0;
+ if(r.nextButton)r.nextButton.disabled=r.index>=r.pages.length-1&&r.dir>=r.dirs-1;
+}
+function jumpReader(r,delta){
+ if(r.stopped||reader!==r)return;
+ if(r.mode==='paged')return changePage(r,delta);
+ const target=r.index+delta;
+ if(target>=r.pages.length&&r.dir<r.dirs-1){
+   loadMoreDirectory(r).then(()=>jumpReader(r,delta));return;
+ }
+ if(target<0||target>=r.pages.length)return;
+ const slot=r.slotNodes.get(target);
+ if(!slot||!r.scroller)return;
+ // Scroll only the dedicated image viewport, never the entire Safari document.
+ const top=slot.getBoundingClientRect().top-r.scroller.getBoundingClientRect().top+r.scroller.scrollTop;
+ r.scroller.scrollTop=Math.max(0,top);setCurrent(r,target);
+ paintSlot(r,slot,target);
 }
 async function changePage(r,delta){
  if(r.stopped||reader!==r||r.mode!=='paged')return;
@@ -283,8 +306,8 @@ function appendScrollSlots(r){
  }
 }
 function updateScrollPosition(r){
- if(r.stopped||r.mode!=='scroll'||reader!==r||!panel)return;
- const targetTop=panel.getBoundingClientRect().top+130;
+ if(r.stopped||r.mode!=='scroll'||reader!==r||!r.scroller)return;
+ const targetTop=r.scroller.getBoundingClientRect().top+68;
  let current=r.index,found=false;
  // Read layout only around the current page during normal scrolling.
  for(let i=Math.max(0,r.index-4);i<=Math.min(r.pages.length-1,r.index+8);i++){
@@ -329,7 +352,7 @@ function renderContinuous(r){
      paintSlot(r,e.target,index);
      if(index>=r.pages.length-4&&r.dir+1<r.dirs)loadMoreDirectory(r);
    }
- },{root:panel,rootMargin:'250px 0px 420px 0px',threshold:0});
+ },{root:r.scroller,rootMargin:'250px 0px 420px 0px',threshold:0});
  appendScrollSlots(r);
  let ticking=false;
  r.scrollListener=()=>{
@@ -337,9 +360,9 @@ function renderContinuous(r){
    ticking=true;
    requestAnimationFrame(()=>{ticking=false;updateScrollPosition(r);});
  };
- panel.addEventListener('scroll',r.scrollListener,{passive:true});
+ r.scroller.addEventListener('scroll',r.scrollListener,{passive:true});
  const saved=r.slotNodes.get(r.index);
- if(saved)saved.scrollIntoView({block:'start'});
+ if(saved)r.scroller.scrollTop=Math.max(0,saved.getBoundingClientRect().top-r.scroller.getBoundingClientRect().top+r.scroller.scrollTop);
  updateScrollPosition(r);
 }
 async function read(x){
