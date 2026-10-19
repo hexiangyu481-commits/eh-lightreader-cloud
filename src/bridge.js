@@ -201,7 +201,7 @@ function renderReaderShell(r){
  if(back)back.onclick=()=>{stopReader(r);reader=null;detail(r.x);};
  const bar=node('div','ehr-reader-toolbar');
  const scroll=node('button','ehr-cloud-go','↓ 连续阅读');
- const paged=node('button','ehr-cloud-go','⇆ 单页阅读');
+ const paged=node('button','ehr-cloud-go','⇆ 左右翻页');
  scroll.type='button';paged.type='button';
  scroll.setAttribute('aria-pressed',String(r.mode==='scroll'));
  paged.setAttribute('aria-pressed',String(r.mode==='paged'));
