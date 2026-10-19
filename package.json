@@ -1,11 +1,12 @@
 {
   "name": "eh-lightreader-cloud",
-  "version": "1.4.0-pilot.2",
+  "version": "1.4.0-pilot.3",
   "private": true,
   "type": "module",
   "scripts": {
     "deploy": "wrangler deploy",
-    "check": "node --check src/index.js && node --check src/bridge.js"
+    "check": "node --check src/index.js && node --check src/bridge.js",
+    "test": "node --test tests/*.test.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.102.0"
