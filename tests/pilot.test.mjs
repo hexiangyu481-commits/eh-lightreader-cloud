@@ -260,3 +260,30 @@ test("long-scroll recycling tracks only loaded images and prioritizes visible pa
   assert.match(bridgeScript,/rootMargin:'250px 0px 420px 0px'/);
   assert.doesNotThrow(()=>new Function(bridgeScript));
 });
+
+
+test("reader uses an isolated full-height viewport so images cannot bleed above the toolbar",()=>{
+  assert.match(bridgeScript,/\.ehr-cloud\.is-reader\{position:fixed!important;inset:0!important/);
+  assert.match(bridgeScript,/overflow:hidden!important;padding:0!important/);
+  assert.match(bridgeScript,/\.ehr-reader-scrollport\{flex:1 1 auto;min-height:0/);
+  assert.match(bridgeScript,/overscroll-behavior-y:contain/);
+  assert.match(bridgeScript,/\.ehr-reader-footer\{flex:none/);
+  assert.match(bridgeScript,/env\(safe-area-inset-top\)/);
+  assert.match(bridgeScript,/env\(safe-area-inset-bottom\)/);
+  assert.match(bridgeScript,/document\.documentElement\.classList\.add\('ehr-reader-lock'\)/);
+  assert.match(bridgeScript,/document\.documentElement\.classList\.remove\('ehr-reader-lock'\)/);
+  assert.ok(!bridgeScript.includes('scrollIntoView('),'do not scroll the outer document');
+});
+
+test("full-screen reader scrolling, observers and pager target its own viewport",()=>{
+  assert.match(bridgeScript,/r\.scroller\.addEventListener\('scroll',r\.scrollListener/);
+  assert.match(bridgeScript,/r\.scroller\.removeEventListener\('scroll',r\.scrollListener/);
+  assert.match(bridgeScript,/root:r\.scroller/);
+  assert.match(bridgeScript,/r\.scroller\.scrollTop=/);
+  assert.match(bridgeScript,/function jumpReader\(r,delta\)/);
+  assert.match(bridgeScript,/if\(added&&!r\.stopped\)jumpReader/);
+  assert.match(bridgeScript,/function setCurrent\(r,index\)/);
+  assert.match(bridgeScript,/saveProgress\(r\)/);
+  assert.match(bridgeScript,/function switchMode\(r,mode\)/);
+  assert.doesNotThrow(()=>new Function(bridgeScript));
+});
