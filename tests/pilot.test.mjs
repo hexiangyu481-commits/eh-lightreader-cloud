@@ -235,7 +235,7 @@ test("continuous reading and page-swiping controls are both present",()=>{
   assert.match(bridgeScript,/ontouchstart/);
   assert.match(bridgeScript,/ontouchend/);
   assert.match(bridgeScript,/referrerPolicy='no-referrer'/);
-  assert.match(bridgeScript,/Math\.abs\(i-r\.index\)>5/);
+  assert.match(bridgeScript,/Math\.abs\(i-r\.index\)<=5/);
   assert.match(bridgeScript,/function saveProgress\(r\)/);
   assert.match(bridgeScript,/function restoredIndex\(x,count\)/);
   assert.doesNotThrow(()=>new Function(bridgeScript));
@@ -255,7 +255,7 @@ test("remote access denial remains a terminal response",async()=>{
 test("long-scroll recycling tracks only loaded images and prioritizes visible pages",()=>{
   assert.match(bridgeScript,/loadedSlots:new Set\(\)/);
   assert.match(bridgeScript,/for\(const i of \[\.\.\.r\.loadedSlots\]\)/);
-  assert.match(bridgeScript,/Math\.abs\(i-r\.index\)>5/);
+  assert.match(bridgeScript,/Math\.abs\(i-r\.index\)<=5/);
   assert.match(bridgeScript,/r\.queue\.sort\(\(a,b\)=>Math\.abs\(a\.index-r\.index\)/);
   assert.match(bridgeScript,/rootMargin:'250px 0px 420px 0px'/);
   assert.doesNotThrow(()=>new Function(bridgeScript));
