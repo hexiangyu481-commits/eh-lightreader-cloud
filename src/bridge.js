@@ -122,7 +122,7 @@ function queueImageUrl(r,index,urgent=false){
  if(!r||r.stopped||index<0||index>=r.pages.length)return Promise.reject(Error('页面不存在'));
  if(r.urls.has(index))return Promise.resolve(r.urls.get(index));
  if(r.pending.has(index)){
-   if(urgent){const pos=r.queue.findIndex(j=>j.index===index);if(pos>0){const [j]=r.queue.splice(pos,1);r.queue.unshift(j);}}
+   if(urgent)r.queue.sort((a,b)=>Math.abs(a.index-r.index)-Math.abs(b.index-r.index));
    return r.pending.get(index);
  }
  if(r.blocked)return Promise.reject(Error(r.blocked));
@@ -130,7 +130,8 @@ function queueImageUrl(r,index,urgent=false){
  const promise=new Promise((resolve,reject)=>{resolveJob=resolve;rejectJob=reject;});
  r.pending.set(index,promise);
  const job={index,resolve:resolveJob,reject:rejectJob};
- if(urgent)r.queue.unshift(job);else r.queue.push(job);
+ r.queue.push(job);
+ if(urgent)r.queue.sort((a,b)=>Math.abs(a.index-r.index)-Math.abs(b.index-r.index));
  pumpImageQueue(r);
  return promise;
 }
