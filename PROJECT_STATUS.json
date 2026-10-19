@@ -10,7 +10,7 @@
     "verification": "Cloudflare-linked GitHub repo has pilot.6 source; CI confirms mocked checks, live Cloudflare deployment and real iPhone layout pending. Pilot.5 user screenshot demonstrated real manga images."
   },
   "tests": {
-    "github_actions_offline": "23 unit/regression tests passed on the layout-fix source before release (see GitHub Actions); release-version verification pending.",
+    "github_actions_offline": "Passed 23/23 offline Node.js tests (syntax + mocked endpoints + isolated reader layout regressions), GitHub Actions run 39310120404, commit deb350162 (2026-10-20).",
     "cloudflare_live_api": "Unavailable directly from assistant; user to confirm health version 1.4.0-pilot.3 after deployment.",
     "site_egress": "not_tested",
     "iphone_pwa": "User iPhone screenshot of pilot.5 showed artwork appearing above the reader controls, unlike the older Userscripts web layout. Pilot.6 separates a fixed header, dedicated image scroll area and footer; requires device retest.",
