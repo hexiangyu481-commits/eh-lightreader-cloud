@@ -1,7 +1,10 @@
 /* EH LightReader Cloud Pilot. No R dependencies, cookies or unrestricted proxy. */
 import {bridgeScript} from "./bridge.js";
 const SITE="https://e-hentai.org", META="https://api.e-hentai.org/api.php";
-let lastSite=0,lastMeta=0;const cache=new Map();
+let lastSite=0,lastMeta=0;const cache=new Map(),detailCache=new Map();
+const DETAIL_CACHE_TTL=5*60*1000;
+function rememberDetail(x){if(!isGallery(x.gid,x.token))return;detailCache.set(x.gid+":"+x.token.toLowerCase(),{at:Date.now()+DETAIL_CACHE_TTL,item:{...x}});if(detailCache.size>160)detailCache.delete(detailCache.keys().next().value);}
+function recalledDetail(gid,token){const c=detailCache.get(Number(gid)+":"+String(token).toLowerCase());if(!c)return null;if(c.at<Date.now()){detailCache.delete(Number(gid)+":"+String(token).toLowerCase());return null;}return {...c.item};}
 const json=(x,s=200,h={})=>new Response(JSON.stringify(x),{status:s,headers:{"content-type":"application/json; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff",...h}});
 const error=(name,status=502,wait=0)=>json({ok:false,error:name,retry_after:wait},status,wait?{"retry-after":String(wait)}:{});
 const isGallery=(g,t)=>/^\d{1,12}$/.test(String(g))&&/^[a-z0-9]{6,64}$/i.test(String(t));
@@ -16,16 +19,25 @@ async function remote(u,payload){
  if(!resp.ok)return{error:"upstream_unavailable",status:502};
  const length=Number(resp.headers.get("content-length")||0);
  if(length>1500000)return{error:"upstream_too_large",status:502};
- const type=resp.headers.get("content-type")||"";
- if(!type.includes(payload?"json":"html"))return{error:"upstream_content_type",status:502};
- let body=await resp.text();if(body.length>1500000)return{error:"upstream_too_large",status:502};
- if(!payload&&/cf-chl-|challenge-platform|just a moment|attention required/i.test(body.slice(0,20000)))return{error:"upstream_challenge",status:403};
+ const type=(resp.headers.get("content-type")||"").toLowerCase();
+ const body=await resp.text();if(body.length>1500000)return{error:"upstream_too_large",status:502};
+ // E-Hentai metadata may be sent as text/plain even when the body is valid JSON.
+ // Validate the body instead of trusting its MIME type. Never treat HTML or a challenge as JSON.
+ if(/cf-chl-|challenge-platform|just a moment|attention required/i.test(body.slice(0,20000)))return{error:"upstream_challenge",status:403};
+ if(payload){
+   let parsed;try{parsed=JSON.parse(body);}catch{return{error:"upstream_not_json",status:502};}
+   if(!parsed||typeof parsed!=="object"||Array.isArray(parsed))return{error:"bad_metadata",status:502};
+   return{body,parsed};
+ }
+ if(type&&!/text\/html|application\/xhtml\+xml/i.test(type))return{error:"upstream_content_type",status:502};
  return{body};
 }
 async function apiMeta(items){
  const wait=pace("meta");if(wait)return{error:"cooldown",status:429,wait};
  const res=await remote(META,{method:"gdata",gidlist:items.map(x=>[x.gid,x.token]).slice(0,24),namespace:1});if(res.error)return res;
- try{const parsed=JSON.parse(res.body);return{items:Array.isArray(parsed.gmetadata)?parsed.gmetadata:[]}}catch{return{error:"bad_metadata",status:502}};
+ if(res.parsed?.error)return{error:"upstream_metadata_error",status:502};
+ if(!Array.isArray(res.parsed?.gmetadata))return{error:"bad_metadata",status:502};
+ return{items:res.parsed.gmetadata};
 }
 function searchEntries(html){
  const entries=[],seen=new Set();
@@ -46,7 +58,7 @@ function catalogEntries(html,gid,token){
 }
 async function api(req){
  const u=new URL(req.url),path=u.pathname;
- if(path==="/api/health")return json({ok:true,service:"eh-lightreader-cloud",version:"1.4.0-pilot.2",r_unchanged:true,userscripts_required:false,real_site_tested:false});
+ if(path==="/api/health")return json({ok:true,service:"eh-lightreader-cloud",version:"1.4.0-pilot.3",r_unchanged:true,userscripts_required:false,real_site_tested:false});
  if(req.method!=="GET")return error("method_not_allowed",405);
  if(path==="/api/search"){
   const q=(u.searchParams.get("q")||"").trim(),page=Number(u.searchParams.get("page")||1),cat=Number(u.searchParams.get("category")||0);
@@ -58,16 +70,28 @@ async function api(req){
   let items=searchEntries(res.body),warnings=[];
   if(items.length){
    const metadata=await apiMeta(items);
-   if(metadata.items){const byId=new Map(metadata.items.map(x=>[Number(x.gid),x]));items=items.map(x=>{const m=byId.get(x.gid)||{};return{...x,title:String(m.title||x.title),cover:urlImage(m.thumb)||x.cover,pages:Number(m.filecount)||0,category:String(m.category||""),tags:Array.isArray(m.tags)?m.tags.slice(0,40):[]}})}
+   if(metadata.items){const byId=new Map(metadata.items.map(x=>[Number(x.gid),x]));items=items.map(x=>{const m=byId.get(x.gid)||{};return{...x,title:String(m.title||x.title),cover:urlImage(m.thumb)||x.cover,pages:Number(m.filecount)||0,category:String(m.category||""),tags:Array.isArray(m.tags)?m.tags.slice(0,40):[],metadata_complete:!!m.gid}})}
    else warnings.push(metadata.error||"metadata_unavailable");
   }
+  for(const item of items)rememberDetail(item);
   const data={ok:true,query:q,items,page,category:cat,count:items.length,warnings};cache.set(key,{at:Date.now()+30000,data});if(cache.size>50)cache.delete(cache.keys().next().value);return json(data);
  }
  if(path==="/api/gallery"){
   const gid=u.searchParams.get("gid")||"",token=u.searchParams.get("token")||"";if(!isGallery(gid,token))return error("bad_request",400);
-  const m=await apiMeta([{gid:Number(gid),token}]);if(m.error)return error(m.error,m.status,m.wait);
-  const row=m.items.find(x=>Number(x.gid)===Number(gid));if(!row)return error("not_found",404);
-  return json({ok:true,gid:Number(gid),token,title:String(row.title||""),category:String(row.category||""),cover:urlImage(row.thumb),pages:Number(row.filecount)||0,tags:Array.isArray(row.tags)?row.tags:[]});
+  // Results from our own search can still open even when upstream metadata is unavailable.
+  // Catalog and image pages are independently validated by their own endpoints.
+  const cached=recalledDetail(gid,token);
+  if(cached&&cached.metadata_complete)return json({ok:true,...cached});
+  const m=await apiMeta([{gid:Number(gid),token}]);
+  if(m.error){
+    if(cached)return json({ok:true,...cached,metadata_complete:false,warnings:[m.error]});
+    return error(m.error,m.status,m.wait);
+  }
+  const row=m.items.find(x=>Number(x.gid)===Number(gid));
+  if(!row){if(cached)return json({ok:true,...cached,metadata_complete:false,warnings:["no_metadata"]});return error("not_found",404);}
+  const detail={gid:Number(gid),token,title:String(row.title||cached?.title||""),category:String(row.category||cached?.category||""),cover:urlImage(row.thumb)||cached?.cover||"",pages:Number(row.filecount)||0,tags:Array.isArray(row.tags)?row.tags:[],metadata_complete:true};
+  rememberDetail(detail);
+  return json({ok:true,...detail});
  }
  if(path==="/api/catalog"||path==="/api/page"){
   const wait=pace("site");if(wait)return error("cooldown",429,wait);
