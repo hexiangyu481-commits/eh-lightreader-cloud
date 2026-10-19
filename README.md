@@ -1,27 +1,29 @@
-# EH LightReader Cloud pilot (isolated from R)
+# EH LightReader Cloud · v1.4.0-pilot.2
 
-This Worker contains a **separate copy** of the released EH LightReader static assets in `public/`. The original GitHub Pages project stays unchanged. It has its own Worker name `eh-lightreader-cloud` and does not modify `red-a8-mind` or any R secrets or KV.
+This repository is the **active deployment repository** created during the Cloudflare one-click import. Its `main` branch is the source of truth for the `eh-lightreader-cloud` Worker. **Do not redeploy from the older seed repository** to update this Worker.
 
-## Deploy using existing Cloudflare account
+## Cloudflare build settings
 
-On Cloudflare Workers & Pages, create a **new** Worker with GitHub repository `hexiangyu481-commits/-erdan-lab-mobile`; root directory `eh-lightreader-cloud`, production branch `main`, build command `npx wrangler deploy`. Do not attach this folder to the existing red-a8-mind Worker. Set the Worker name to `eh-lightreader-cloud`.
+- Connected GitHub repository: `hexiangyu481-commits/eh-lightreader-cloud`
+- Production branch: `main`
+- Root directory: `/`
+- Build command: none
+- Deploy command: `npm run deploy`
+- Worker name: `eh-lightreader-cloud`
 
-After deployment, open `https://eh-lightreader-cloud.<your-subdomain>.workers.dev/api/health` and ensure `ok=true`. Then use the Worker root for the pilot PWA.
+The Worker and the Cloud PWA use the same origin: `https://eh-lightreader-cloud.hexiangyu481.workers.dev`. The health endpoint is `/api/health` and should report `1.4.0-pilot.2` after the latest version reaches production.
+
+> Updated 2026-10-20 to document the correct deployed repository and Cloudflare build root. This documentation commit also provides a fresh `main` push to trigger the configured automatic build. **A GitHub commit or completed GitHub Pages run is not proof of a Cloudflare Worker deployment.** Check Cloudflare deployment history and the live health endpoint.
 
 ## Boundaries
 
-- Public discovery and gallery metadata are experimental; actual E-Hentai access from Workers egress is NOT VERIFIED.
-- If E-Hentai blocks access or requires a login/challenge, stop. No login bypass, cookie collection, proxy rotation, or retry on 403/429.
-- Do not add user account secrets to GitHub.
-- This experiment does not upload R user data or change RED A8 routes.
-- iPhone Safari/real manga image delivery has NOT been tested; existing Userscripts remains fallback.
+- This pilot is independent of `red-a8-mind` and does not modify R secrets or workers.
+- Public discovery and gallery metadata are experimental; actual E-Hentai access from Workers egress is not verified.
+- If E-Hentai blocks access or requires a login/challenge, stop. No bypass, cookie collection, proxy rotation, or retry after 403/429.
+- User credentials and cookies must never be committed to GitHub.
+- Direct manga images and native iPhone PWA navigation are not yet validated. Keep the stable Userscripts reader as a fallback.
+- All functions remain in the new domain only if the `/__ehr_cloud.js` bridge is loaded; the PWA should not navigate to the original site when testing cloud search.
 
-## APIs
+## API
 
 `GET /api/health`, `GET /api/search?q=...`, `GET /api/gallery?gid=...&token=...`, `GET /api/catalog?gid=...&token=...&p=0`, `GET /api/page?url=...`.
-
-One-click Cloudflare import (creates a separate Worker project):
-
-https://deploy.workers.cloudflare.com/?url=https://github.com/hexiangyu481-commits/-erdan-lab-mobile/tree/main/eh-lightreader-cloud
-
-This button may create a new GitHub repository copy. To keep using the original repository instead, import the existing repository from Workers & Pages and set its root directory to `eh-lightreader-cloud`.
