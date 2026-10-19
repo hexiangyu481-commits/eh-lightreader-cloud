@@ -1,5 +1,14 @@
 # EH LightReader Cloud — CHANGELOG
 
+## v1.4.0-pilot.5 · 2026-10-20
+
+- **Observed:** pilot.4 now displays a real comic image on iPhone, but the client still showed a roughly three-second gateway cooldown message between catalog and image resolution. The cloud overlay also had only previous/next controls, losing the former vertical continuous reader.
+- **Reader experience:** Restore two user-selectable modes, `↓ 连续阅读` (full-width vertical page stream, default) and `⇆ 左右翻页` (single page with touch swipes and explicit previous/next controls). Save preferred mode and reading progress in local storage. Keep the two-column discovery grid unchanged.
+- **Loading:** Replace the Worker isolate's fixed 3.25-second cooldown response with an async, per-isolate, best-effort upstream queue reserving roughly 950 ms between ordinary site HTML requests and 500 ms between API metadata calls. The browser uses a sequential bounded image URL queue, prioritizes visible pages and prefetches a small nearby window; a network image load and upstream response can still take longer. Source-origin access denials/challenges/real 429 are not bypassed or retried.
+- **Performance:** Viewport-based loading in continuous mode, release images outside a small radius while retaining a bounded LRU of resolved image URLs; avoid full-DOM layout work on every normal scroll frame, and only fetch subsequent directory pages near the end.
+- **Tests:** Existing Node regression suite plus new mocked catalog→first-image tests and reader mode, image queue, memory-window checks. These are not real iPhone Safari tests.
+- **Compatibility:** No changes to R or the older working v1.3.2 Userscripts script.
+
 ## v1.4.0-pilot.4 · 2026-10-20
 
 - **Observed:** iPhone reader found a 25-page directory, but immediately requesting page 1 returned "请求太频繁" from our own cooldown timer. The cloud manga directory displayed as a one-column list rather than the previous two-column presentation.

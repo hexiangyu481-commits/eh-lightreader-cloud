@@ -1,31 +1,31 @@
 {
   "project": "EH LightReader Cloud Pilot",
-  "version": "1.4.0-pilot.4",
+  "version": "1.4.0-pilot.5",
   "base_userscripts": "v1.3.2",
   "deployment": {
     "github_main_merged": true,
     "cloudflare_worker_deployed": true,
     "reason": "Cloudflare account was linked and Worker started, but this connector cannot inspect Cloudflare deployment versions.",
     "r_project_modified": false,
-    "verification": "Pilot.3 was observed by user on real iPhone: catalog loads, first image gets gateway-local cooldown. Pilot.4 code staged in deployment repo; Cloudflare production deployment not yet confirmed."
+    "verification": "Cloudflare production of pilot.5 not independently confirmed. Source now pushed to the active Cloudflare-linked repo; user showed pilot.4 successfully displaying a real image on iPhone."
   },
   "tests": {
-    "github_actions_offline": "Two-column CSS and bounded client cooldown handling added to GitHub Actions regression suite; awaiting final main verification.",
+    "github_actions_offline": "Offline regression suite covers dual-column listing, public URL validation, scrolling/swipe-mode syntax, local request pacing, first-page image resolve, bounded loading and exit on source denial. Latest pilot.5 CI pending confirmation.",
     "cloudflare_live_api": "Unavailable directly from assistant; user to confirm health version 1.4.0-pilot.3 after deployment.",
     "site_egress": "not_tested",
-    "iphone_pwa": "Observed gallery directory 25 links, page 1 returned gateway-local cooldown. Search cards displayed as single column in cloud overlay; both targeted in pilot.4.",
-    "reader_images": "A valid image has not yet been observed on a real iPhone. Pilot.4 handles gateway's own cooldown; the remote image itself may remain unavailable."
+    "iphone_pwa": "Pilot.4 showed image 1/20 on iPhone; pilot.5 code restores continuous/paged switch and removes fixed 3.25s local cooldown. Actual iPhone verification pending.",
+    "reader_images": "First image visibly succeeded on iPhone in user screenshot under pilot.4. Long-scroll flow and remaining pages in pilot.5 need device verification."
   },
   "limits": [
     "No user login or cookies are imported.",
     "Public E-Hentai access may be denied or rate-limited.",
     "Reader images currently use validated direct URLs and may fail due to remote access rules.",
-    "Cloudflare account owner must import the Worker once; no card required for free-plan pilot."
+    "Short best-effort 950ms Worker-isolate pacing does not guarantee global limits; actual source 403/429/challenges are never bypassed or automatically retried."
   ],
   "next": [
-    "Confirm Cloudflare /api/health version 1.4.0-pilot.4 after deployment.",
-    "Use a fresh Safari tab: search category returns two-column grid, click gallery then read first page. Self-imposed cooldown should wait up to ~4 seconds and resume automatically.",
-    "If still no image, send exact error shown. Real upstream 403, 429 or image hotlink failure won't be bypassed.",
-    "Keep stable v1.3.2 Safari Userscripts fallback until real reading is verified."
+    "Confirm live Cloudflare version from /api/health after build.",
+    "On iPhone, switch between ↓ 连续阅读 and ⇆ 左右翻页; test initial page, scroll through three pages, left/right swipes, and progress after reopening.",
+    "For galleries over one directory, verify lazy next-directory loading and bounded RAM; genuine upstream blocks will be reported without automated retries.",
+    "Keep v1.3.2 Userscripts available until full reader acceptance."
   ]
 }
