@@ -145,3 +145,56 @@ test("gallery directory parser extracts only requested gallery pages",()=>{
   const p=__testing.catalogEntries(html,123456,"abcdef1234");
   assert.deepEqual(p.pages.map(v=>v.page),[1]);
 });
+
+
+test("gallery browsing keeps two-column portrait-cover cards", () => {
+  assert.match(bridgeScript,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+  assert.match(bridgeScript,/const grid=node\('div','ehr-cloud-grid'\)/);
+  assert.match(bridgeScript,/grid\.append\(card\)/);
+  assert.match(bridgeScript,/aspect-ratio:3\/4/);
+  assert.match(bridgeScript,/ref\.dir=nextDir/);
+});
+
+test("the cloud client waits for its own cooldown then continues loading",async()=>{
+  const start=bridgeScript.indexOf('const waitMs=');
+  const end=bridgeScript.indexOf('\nfunction term()',start);
+  assert.ok(start>0&&end>start);
+  const getCall=new Function('fetch','location','setTimeout','URL',
+    bridgeScript.slice(start,end)+'\nreturn call;');
+  const notices=[];
+  let count=0;
+  const mockFetch=async()=>{
+    count++;
+    return count===1?{
+      ok:false,status:429,
+      headers:new Headers({'retry-after':'4'}),
+      json:async()=>({ok:false,error:'cooldown',retry_after:4})
+    }:{
+      ok:true,status:200,
+      json:async()=>({ok:true,image_url:'https://ehgt.org/page.jpg'})
+    };
+  };
+  const call=getCall(mockFetch,{origin:'https://example.workers.dev'},fn=>fn(),URL);
+  const data=await call('page',{url:'https://e-hentai.org/s/abcde123/123-1'},text=>notices.push(text));
+  assert.equal(count,2);
+  assert.equal(data.image_url,'https://ehgt.org/page.jpg');
+  assert.equal(notices.length,1);
+  assert.match(notices[0],/4 秒/);
+});
+
+test("upstream rate limit and challenge are never automatically retried",async()=>{
+  const start=bridgeScript.indexOf('const waitMs=');
+  const end=bridgeScript.indexOf('\nfunction term()',start);
+  const getCall=new Function('fetch','location','setTimeout','URL',
+    bridgeScript.slice(start,end)+'\nreturn call;');
+  for(const upstreamError of ['upstream_rate_limited','upstream_challenge','upstream_access_denied']){
+    let count=0;
+    const mockFetch=async()=>{
+      count++;
+      return {ok:false,status:upstreamError==='upstream_rate_limited'?429:403,json:async()=>({ok:false,error:upstreamError})};
+    };
+    const call=getCall(mockFetch,{origin:'https://example.workers.dev'},fn=>fn(),URL);
+    await assert.rejects(()=>call('page',{url:'https://e-hentai.org/s/testabc/123-1'}));
+    assert.equal(count,1,upstreamError+' must be single-shot');
+  }
+});
