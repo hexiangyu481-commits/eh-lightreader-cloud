@@ -1,20 +1,20 @@
 {
   "project": "EH LightReader Cloud Pilot",
-  "version": "1.4.0-pilot.2",
+  "version": "1.4.0-pilot.3",
   "base_userscripts": "v1.3.2",
   "deployment": {
     "github_main_merged": true,
     "cloudflare_worker_deployed": true,
     "reason": "Cloudflare account was linked and Worker started, but this connector cannot inspect Cloudflare deployment versions.",
     "r_project_modified": false,
-    "verification": "v1.4.0-pilot health and home were accessible in user iPhone video; deployment of pilot.2 is not confirmed yet."
+    "verification": "Previous pilot.2 deployment verified by user-provided Cloudflare build log; pilot.3 pushed to deployment repo but live deployment unconfirmed."
   },
   "tests": {
-    "github_actions_offline": "passed pilot.2 static bootstrap and worker regressions (2026-10-19); real iPhone pending",
-    "cloudflare_live_api": "not_tested",
+    "github_actions_offline": "Node syntax and offline regression suite runs in active deployment repo, pilot.3 follow-up test run pending confirmation.",
+    "cloudflare_live_api": "Unavailable directly from assistant; user to confirm health version 1.4.0-pilot.3 after deployment.",
     "site_egress": "not_tested",
-    "iphone_pwa": "old Worker showed original E-Hentai navigation in user video; pilot.2 cloud bootstrap fix awaiting real iPhone verification",
-    "reader_images": "not_tested"
+    "iphone_pwa": "iPhone 2026-10-20 recording: search returned 24 results without covers; gallery metadata failed with upstream_content_type. Pilot.3 addresses these; real retest pending.",
+    "reader_images": "Only mocked image-page parser tests; direct image delivery unverified on real iPhone."
   },
   "limits": [
     "No user login or cookies are imported.",
@@ -23,8 +23,9 @@
     "Cloudflare account owner must import the Worker once; no card required for free-plan pilot."
   ],
   "next": [
-    "Check that /api/health reports version 1.4.0-pilot.2 (GitHub CI success is not equivalent to Cloudflare deployment).",
-    "Reload cloud homepage from a fresh Safari tab, verify cloud label appears and selecting categories/search stays on cloud origin.",
-    "Test real E-Hentai cloud access and image display; continue using v1.3.2 Userscripts fallback until verified."
+    "Confirm Cloudflare /api/health version 1.4.0-pilot.3.",
+    "Retest thumbnail, gallery details and reading; app now permits catalog attempt without metadata.",
+    "Check /api/search warnings if still missing covers. Do not bypass site restrictions.",
+    "Keep Userscripts v1.3.2 as fallback until real images work."
   ]
 }

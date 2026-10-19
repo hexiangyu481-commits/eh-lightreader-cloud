@@ -1,5 +1,15 @@
 # EH LightReader Cloud — CHANGELOG
 
+## v1.4.0-pilot.3 · 2026-10-20
+
+- **Observed:** iPhone recording showed 24 search results without thumbnails; gallery detail errored with upstream_content_type.
+- **Backend:** Accept structurally valid gallery JSON even if served with text/plain MIME. Continue rejecting access challenges, 403 and 429. Cache and reuse search metadata when gallery metadata is unavailable.
+- **Thumbnails:** Parse lazy-loading attributes and CSS image URLs from normal search markup, without attempting protected image proxying.
+- **UI:** Show cover loading failures and keep gallery reading attempt available even when metadata lookup fails. Manual catalog retry and more informative errors added.
+- **Cache:** Cloud bridge version query bumped to 1403.
+- **Tests:** Offline mocked JSON metadata / challenge responses, thumbnail extraction and page resolution in GitHub Actions. Real E-Hentai image loading and iPhone acceptance not verified.
+- **Unchanged:** R and v1.3.2 Userscripts.
+
 ## v1.4.0-pilot.2 · 2026-10-19
 
 **Second fix:** The pilot.1 Worker dynamically modified the decompression bootstrap before serving it. This dependency was fragile and hard to verify across Cloudflare asset cache/deploy versions. Moved the valid cloud bridge script injection directly into `public/index.html` (cloud-only build), and changed the Worker to serve that static loader unchanged with `Cache-Control: no-store` for the homepage. No changes to R or the stable Userscripts 1.3.2.
