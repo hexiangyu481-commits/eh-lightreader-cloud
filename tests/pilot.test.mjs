@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import cloud from "../src/index.js";
+import cloud,{__testing} from "../src/index.js";
 import {bridgeScript} from "../src/bridge.js";
 
 test("the additive cloud sidecar parses", () => {
@@ -31,7 +31,7 @@ test("cloud bootstrap injects valid bridge script after decompression", async ()
   assert.ok(anchor >= 0, "cloud bridge loaded from static bootstrap");
   const transform = script.slice(anchor,script.indexOf("document.open();",anchor));
   const result = new Function("page",transform + "return page;")("<html><body>Hello</body></html>");
-  assert.ok(result.includes("<script src='/__ehr_cloud.js?v=1402'></script>"), "valid tag emitted");
+  assert.ok(result.includes("<script src='/__ehr_cloud.js?v=1403'></script>"), "valid tag emitted");
   assert.equal(result.includes("<\\/script>"),false, "no escaped closing script tag");
 });
 
@@ -57,4 +57,66 @@ test("cloud bridge JavaScript is served directly", async () => {
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type"), /javascript/);
   assert.match(await response.text(), /ehr-cloud/);
+});
+
+
+test("upstream gallery metadata accepts valid JSON even when tagged text/plain", async () => {
+  const original=globalThis.fetch;
+  globalThis.fetch=async (url,opts) => {
+    assert.equal(url,"https://api.e-hentai.org/api.php");
+    assert.equal(opts.method,"POST");
+    return new Response(JSON.stringify({gmetadata:[{
+      gid:123456,token:"abcdef1234",title:"测试作品",category:"Manga",
+      filecount:"32",thumb:"https://ehgt.org/covers/123.jpg",tags:["language:chinese"]
+    }]}),{status:200,headers:{"content-type":"text/plain; charset=UTF-8"}});
+  };
+  try {
+    const r=await cloud.fetch(new Request("https://example.workers.dev/api/gallery?gid=123456&token=abcdef1234"),{});
+    const d=await r.json();
+    assert.equal(r.status,200,JSON.stringify(d));
+    assert.equal(d.ok,true);
+    assert.equal(d.title,"测试作品");
+    assert.equal(d.cover,"https://ehgt.org/covers/123.jpg");
+    assert.equal(d.pages,32);
+  } finally {globalThis.fetch=original;}
+});
+
+test("HTML anti-bot challenge disguised as metadata is not treated as JSON", async()=>{
+  const original=globalThis.fetch;
+  globalThis.fetch=async()=>new Response("<html><title>Just a moment...</title></html>",{
+    status:200,headers:{"content-type":"text/html"}
+  });
+  try{
+    const result=await __testing.remote("https://api.e-hentai.org/api.php",{method:"gdata",gidlist:[]});
+    assert.equal(result.error,"upstream_challenge");
+    assert.equal(result.status,403);
+  }finally{globalThis.fetch=original;}
+});
+
+test("unexpected HTML metadata body is reported explicitly",async()=>{
+  const original=globalThis.fetch;
+  globalThis.fetch=async()=>new Response("<html>not JSON</html>",{
+    status:200,headers:{"content-type":"text/html"}
+  });
+  try{
+    const result=await __testing.remote("https://api.e-hentai.org/api.php",{method:"gdata",gidlist:[]});
+    assert.equal(result.error,"upstream_not_json");
+  }finally{globalThis.fetch=original;}
+});
+
+test("thumbnail parser accepts lazy and CSS cover URLs without external tracking domains",()=>{
+  const html='<a href="/g/223344/aabbccdd99/"><div class="glthumb"><img data-src="//ehgt.org/t/cover.jpg"></div></a>';
+  const rows=__testing.searchEntries(html);
+  assert.equal(rows.length,1);
+  assert.equal(rows[0].cover,"https://ehgt.org/t/cover.jpg");
+  const css='<a href="/g/223345/aabbccdd98/"><div style="background-image:url(https://ehgt.org/t/x.png)"></div></a>';
+  assert.equal(__testing.searchEntries(css)[0].cover,"https://ehgt.org/t/x.png");
+  assert.equal(__testing.extractCover('<img src="https://example.net/track.jpg">'),"");
+});
+
+test("cloud sidecar still offers reading when gallery metadata fails",()=>{
+  assert.match(bridgeScript,/元数据获取失败/);
+  assert.match(bridgeScript,/在 App 内试读/);
+  assert.match(bridgeScript,/封面无法加载/);
+  assert.doesNotThrow(()=>new Function(bridgeScript));
 });
