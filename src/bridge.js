@@ -173,7 +173,7 @@ function slotError(slot,r,index,text){
  p.append(node('br'),retry);slot.dataset.loading='error';
 }
 async function paintSlot(r,slot,index){
- if(r.stopped||reader!==r||!slot||slot.dataset.loading==='loading'||slot.querySelector('img'))return;
+ if(r.stopped||reader!==r||!slot||slot.dataset.loading==='loading'||slot.dataset.loading==='error'||slot.querySelector('img'))return;
  slot.dataset.index=String(index);
  slot.dataset.loading='loading';
  slot.replaceChildren(node('div','ehr-reader-placeholder','第 '+(index+1)+' 页 · 加载中…'));
