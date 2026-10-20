@@ -88,7 +88,7 @@ Page {
             Label {
                 text: root.view === 2
                     ? "原生阅读 · " + _eh.currentPage + " / " + _eh.pageCount
-                    : "Cascades Native 0.1.0 · EH Cloud"
+                    : "Cascades Native 0.1.0.3 · EH Cloud"
                 textStyle.fontSize: FontSize.XSmall
                 textStyle.color: Color.create("#BDABD7")
             }

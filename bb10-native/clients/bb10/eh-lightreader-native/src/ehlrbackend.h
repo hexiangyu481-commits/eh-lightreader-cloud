@@ -47,7 +47,7 @@ public:
     Q_INVOKABLE void loadSaved(bool history);
     Q_INVOKABLE void closeReader();
     Q_INVOKABLE void retryPage();
-    Q_INVOKABLE QString version() const {return "0.1.0";}
+    Q_INVOKABLE QString version() const {return "0.1.0.3";}
 
 Q_SIGNALS:
     void changed();
