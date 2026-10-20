@@ -7,7 +7,7 @@ on:
       - "bb10-native/**"
       - ".github/workflows/build-native-eh-q20.yml"
 permissions:
-  contents: read
+  contents: write
 jobs:
   build-q20-native:
     runs-on: ubuntu-24.04
@@ -29,3 +29,14 @@ jobs:
             bb10-native/dist/EH_LightReader_BB10_0.1.0.3.bar
             bb10-native/dist/EH_LightReader_BB10_0.1.0.3.bar.sha256
           retention-days: 30
+      - name: Publish release download
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create eh-lightreader-q20-v0.1.0.3 \
+            bb10-native/dist/EH_LightReader_BB10_0.1.0.3.bar \
+            bb10-native/dist/EH_LightReader_BB10_0.1.0.3.bar.sha256 \
+            --title "EH LightReader Q20 0.1.0.3" \
+            --notes "Diagnostic build. ARM build/package checks passed; Q20 startup remains unverified." \
+            --prerelease
