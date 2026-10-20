@@ -3,7 +3,7 @@
   <id>com.heberry.ehlightreader</id>
   <name>EH 轻阅读</name>
   <versionNumber>0.1.0</versionNumber>
-  <buildId>3</buildId>
+  <buildId>4</buildId>
   <description>Standalone native Cascades EH LightReader for BlackBerry Q20</description>
   <author>HE Berry</author>
   <icon><image>icon.png</image></icon>
