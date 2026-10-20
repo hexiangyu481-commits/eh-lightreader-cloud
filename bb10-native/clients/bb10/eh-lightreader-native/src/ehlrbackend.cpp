@@ -17,7 +17,7 @@
 #include <QVariantMap>
 #include <QSize>
 
-static const char *const ORIGIN="https://eh-lightreader-cloud.hexiangyu481.workers.dev";
+static const char *const ORIGIN="https://heberry-4800gt.tail18dfd9.ts.net";
 static const int MAX_JSON=2*1024*1024;
 static const int MAX_IMAGE=8*1024*1024;
 
@@ -28,7 +28,7 @@ static bool isGallery(const QString &gid, const QString &token) {
 
 EhlrBackend::EhlrBackend(QObject *parent):
     QObject(parent),m_settings("HE Berry","EH LightReader"),
-    m_status("准备连接 EH Cloud"),m_category(0),m_searchPage(1),m_index(0),
+    m_status("准备连接 HE Berry NAS"),m_category(0),m_searchPage(1),m_index(0),
     m_dir(0),m_dirCount(1),m_generation(0),m_busy(false),
     m_continuous(m_settings.value("reader/continuous",true).toBool()),m_thumbRunning(false) {
     m_cache=QDir::homePath()+"/data/eh-lightreader-cache";
@@ -47,7 +47,7 @@ void EhlrBackend::fetch(const QString &uri, const QString &kind, int index, int 
     }
     QNetworkRequest request(url);
     request.setRawHeader("Accept",(kind=="image" || kind=="thumb")?"image/*":"application/json");
-    request.setRawHeader("User-Agent","EH-LightReader-Q20/0.1.0");
+    request.setRawHeader("User-Agent","EH-LightReader-Q20/0.1.0.5");
     QNetworkReply *reply=m_net.get(request);
     reply->setProperty("kind",kind);reply->setProperty("index",index);
     reply->setProperty("generation",generation);
@@ -58,8 +58,8 @@ void EhlrBackend::fetch(const QString &uri, const QString &kind, int index, int 
 
 void EhlrBackend::sslFailure(const QList<QSslError> &errors) {
     Q_UNUSED(errors);
-    // Never waive certificate verification. Fail closed if BB10 cannot validate Cloudflare.
-    setStatus("BB10 TLS 证书校验失败，未绕过验证",false);
+    // Never waive certificate verification. Fail closed if BB10 cannot validate the NAS public endpoint.
+    setStatus("NAS 公网 TLS 证书校验失败，未绕过验证",false);
 }
 
 void EhlrBackend::search(const QString &q,int category,int page) {
