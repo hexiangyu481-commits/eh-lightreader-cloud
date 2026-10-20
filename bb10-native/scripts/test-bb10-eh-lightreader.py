@@ -14,6 +14,8 @@ assert d.find("q:versionNumber",ns).text=="0.1.0"
 assert [x.text for x in d.findall("q:permission",ns)]==["run_native","access_internet"]
 assert "WebView" not in qml and "WebView" not in cpp
 assert "import bb.cascades 1.3" in qml
+assert "import bb.data 1.0" in qml  # ArrayDataModel belongs to bb.data
+assert '_eh.search("language:chinese$", 0, 1)' not in qml  # no network request during startup
 assert "GridListLayout { columnCount: 2 }" in qml
 assert "ScrollView {" in qml
 assert "imageSource: _eh.currentImage" in qml
