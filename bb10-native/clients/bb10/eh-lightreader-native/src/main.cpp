@@ -26,7 +26,7 @@ static AbstractPane *createDiagnostic(Application *app, const QString &message) 
     diagnostic->setContextProperty("_startupError", message);
     if (diagnostic->hasErrors()) {
         qWarning() << "EH LightReader diagnostic QML failed to load";
-        foreach (const QmlError &error, diagnostic->errors()) qWarning() << error.toString();
+        foreach (const QDeclarativeError &error, diagnostic->errors()) qWarning() << error.toString();
         return 0;
     }
     AbstractPane *root = diagnostic->createRootObject<AbstractPane>();
