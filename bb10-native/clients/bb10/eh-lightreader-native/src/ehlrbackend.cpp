@@ -153,7 +153,8 @@ QString EhlrBackend::saveImage(const QByteArray &data,int index,bool thumb){
     if(!orig.isValid()||orig.width()>20000||orig.height()>30000||
        qint64(orig.width())*orig.height()>40000000LL)return QString();
     const QSize budget=thumb?QSize(280,420):QSize(720,9000);
-    r.setScaledSize(orig.scaled(budget,Qt::KeepAspectRatio));
+    QSize scaled=orig;scaled.scale(budget,Qt::KeepAspectRatio);
+    r.setScaledSize(scaled);
     const QImage image=r.read();
     if(image.isNull())return QString();
     const QString key=thumb?
