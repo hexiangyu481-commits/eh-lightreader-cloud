@@ -20,23 +20,23 @@ jobs:
         run: cd bb10-native && sh scripts/build-bb10-eh-lightreader.sh
       - name: Show verified package identity
         run: |
-          unzip -p bb10-native/dist/EH_LightReader_BB10_0.1.0.4.bar META-INF/MANIFEST.MF | grep -E '^Package-Name:|^Package-Version:'
-          cat bb10-native/dist/EH_LightReader_BB10_0.1.0.4.bar.sha256
+          unzip -p bb10-native/dist/EH_LightReader_BB10_0.1.0.5.bar META-INF/MANIFEST.MF | grep -E '^Package-Name:|^Package-Version:'
+          cat bb10-native/dist/EH_LightReader_BB10_0.1.0.5.bar.sha256
       - uses: actions/upload-artifact@v4
         with:
-          name: EH-LightReader-Q20-Native-0.1.0.4
+          name: EH-LightReader-Q20-Native-0.1.0.5
           path: |
-            bb10-native/dist/EH_LightReader_BB10_0.1.0.4.bar
-            bb10-native/dist/EH_LightReader_BB10_0.1.0.4.bar.sha256
+            bb10-native/dist/EH_LightReader_BB10_0.1.0.5.bar
+            bb10-native/dist/EH_LightReader_BB10_0.1.0.5.bar.sha256
           retention-days: 30
       - name: Publish release download
         if: github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create eh-lightreader-q20-v0.1.0.4 \
-            bb10-native/dist/EH_LightReader_BB10_0.1.0.4.bar \
-            bb10-native/dist/EH_LightReader_BB10_0.1.0.4.bar.sha256 \
-            --title "EH LightReader Q20 0.1.0.4" \
-            --notes "Diagnostic build. ARM build/package checks passed; Q20 startup remains unverified." \
+          gh release create eh-lightreader-q20-v0.1.0.5 \
+            bb10-native/dist/EH_LightReader_BB10_0.1.0.5.bar \
+            bb10-native/dist/EH_LightReader_BB10_0.1.0.5.bar.sha256 \
+            --title "EH LightReader Q20 0.1.0.5" \
+            --notes "NAS backend build. ARM build/package checks passed; Q20 NAS API runtime verification remains pending." \
             --prerelease
