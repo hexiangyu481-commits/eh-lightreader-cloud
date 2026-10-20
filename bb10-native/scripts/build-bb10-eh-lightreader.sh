@@ -5,7 +5,7 @@ ROOT=$(CDPATH= cd "$(dirname "$0")/.." && pwd)
 SOURCE="$ROOT/clients/bb10/eh-lightreader-native"
 WORK="$ROOT/clients/bb10/.eh-native-build"
 IMAGE="${BB10_BUILDER_IMAGE:-ghcr.io/xiazy/blackberry10-toolchain@sha256:e56e8572589d46d86f7be108d6d14cfe20a5097c46ac9c655edd042eecd437be}"
-OUT="$ROOT/dist/EH_LightReader_BB10_0.1.0.3.bar"
+OUT="$ROOT/dist/EH_LightReader_BB10_0.1.0.4.bar"
 mkdir -p "$ROOT/dist"
 rm -rf "$WORK"
 mkdir -p "$WORK/src" "$WORK/assets"
