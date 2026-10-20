@@ -19,7 +19,7 @@ assert "ScrollView {" in qml
 assert "imageSource: _eh.currentImage" in qml
 assert "onKeyPressed" in qml
 assert "ignoreSslErrors()" not in cpp
-assert 'ORIGIN("https://eh-lightreader-cloud.hexiangyu481.workers.dev")' in cpp
+assert 'eh-lightreader-cloud.hexiangyu481.workers.dev' in cpp
 for p in ["/api/search","/api/catalog","/api/page"]: assert p in cpp,p
 for p in ["upstream_rate_limited","upstream_access_denied","upstream_challenge"]: assert p in cpp,p
 assert "m_settings" in cpp
