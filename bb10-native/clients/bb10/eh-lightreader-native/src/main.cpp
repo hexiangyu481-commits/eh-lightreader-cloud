@@ -1,7 +1,6 @@
 #include <bb/cascades/Application>
 #include <bb/cascades/QmlDocument>
 #include <bb/cascades/AbstractPane>
-#include <bb/cascades/QmlError>
 #include <QStringList>
 #include <QDebug>
 #include "ehlrbackend.h"
