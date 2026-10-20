@@ -1,8 +1,8 @@
 #ifndef EHLR_BACKEND_H
 #define EHLR_BACKEND_H
 #include <QObject>
-#include <QNetworkAccessManager>
-#include <QSslError>
+#include <QtNetwork/QNetworkAccessManager>
+#include <QtNetwork/QSslError>
 #include <QSettings>
 #include <QString>
 #include <QVariantList>
