@@ -17,7 +17,7 @@
 #include <QVariantMap>
 #include <QSize>
 
-static const QString ORIGIN("https://eh-lightreader-cloud.hexiangyu481.workers.dev");
+static const char *const ORIGIN="https://eh-lightreader-cloud.hexiangyu481.workers.dev";
 static const int MAX_JSON=2*1024*1024;
 static const int MAX_IMAGE=8*1024*1024;
 
@@ -68,7 +68,7 @@ void EhlrBackend::search(const QString &q,int category,int page) {
          category==32||category==64||category==128||category==256||category==512)) return;
     m_query=q.trimmed();m_category=category;m_searchPage=page;
     ++m_generation;m_thumbnailQueue.clear();m_thumbRunning=false;
-    QUrl u(ORIGIN+"/api/search");
+    QUrl u(QString::fromLatin1(ORIGIN)+"/api/search");
     u.addQueryItem("q",m_query);
     u.addQueryItem("category",QString::number(category));
     u.addQueryItem("page",QString::number(page));
@@ -87,7 +87,7 @@ void EhlrBackend::openGallery(const QString &gid,const QString &token,const QStr
     catalog(0);
 }
 void EhlrBackend::catalog(int directory) {
-    QUrl u(ORIGIN+"/api/catalog");
+    QUrl u(QString::fromLatin1(ORIGIN)+"/api/catalog");
     u.addQueryItem("gid",m_gid);u.addQueryItem("token",m_token);
     u.addQueryItem("p",QString::number(directory));
     fetch(u.toString(),"catalog",directory,m_generation);
@@ -118,7 +118,7 @@ void EhlrBackend::resolve(int index){
     if(index<0||index>=m_pages.size())return;
     const QString page=m_pages.at(index).toMap().value("url").toString();
     if(!page.startsWith("https://e-hentai.org/s/"))return;
-    QUrl u(ORIGIN+"/api/page");
+    QUrl u(QString::fromLatin1(ORIGIN)+"/api/page");
     u.addQueryItem("url",page);
     setStatus("读取第 "+QString::number(index+1)+" 页…",true);
     fetch(u.toString(),"page",index,m_generation);
