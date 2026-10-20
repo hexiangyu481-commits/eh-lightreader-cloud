@@ -6,8 +6,8 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfoList>
-#include <QImage>
-#include <QImageReader>
+#include <QtGui/QImage>
+#include <QtGui/QImageReader>
 #include <QBuffer>
 #include <QCryptographicHash>
 #include <QDateTime>
