@@ -1,7 +1,7 @@
 #include "ehlrbackend.h"
 #include <bb/data/JsonDataAccess>
-#include <QNetworkReply>
-#include <QNetworkRequest>
+#include <QtNetwork/QNetworkReply>
+#include <QtNetwork/QNetworkRequest>
 #include <QUrl>
 #include <QDir>
 #include <QFile>
@@ -12,7 +12,7 @@
 #include <QCryptographicHash>
 #include <QDateTime>
 #include <QTimer>
-#include <QHostAddress>
+#include <QtNetwork/QHostAddress>
 #include <QRegExp>
 #include <QVariantMap>
 #include <QSize>
