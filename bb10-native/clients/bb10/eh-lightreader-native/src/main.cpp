@@ -2,6 +2,7 @@
 #include <bb/cascades/QmlDocument>
 #include <bb/cascades/AbstractPane>
 #include <QtDeclarative/QDeclarativeError>
+#include <QtDeclarative/QDeclarativePropertyMap>
 #include <QStringList>
 #include <QDebug>
 #include "ehlrbackend.h"
@@ -23,7 +24,9 @@ static QString collectQmlErrors(QmlDocument *document, const QString &fallback) 
 
 static AbstractPane *createDiagnostic(Application *app, const QString &message) {
     QmlDocument *diagnostic = QmlDocument::create("asset:///diagnostic.qml").parent(app);
-    diagnostic->setContextProperty("_startupError", message);
+    QDeclarativePropertyMap *startup = new QDeclarativePropertyMap(diagnostic);
+    startup->insert("message", message);
+    diagnostic->setContextProperty("_startup", startup);
     if (diagnostic->hasErrors()) {
         qWarning() << "EH LightReader diagnostic QML failed to load";
         foreach (const QDeclarativeError &error, diagnostic->errors()) qWarning() << error.toString();
