@@ -1,6 +1,7 @@
 #include <bb/cascades/Application>
 #include <bb/cascades/QmlDocument>
 #include <bb/cascades/AbstractPane>
+#include <QtDeclarative/QDeclarativeError>
 #include <QStringList>
 #include <QDebug>
 #include "ehlrbackend.h"
@@ -10,7 +11,7 @@ using namespace bb::cascades;
 static QString collectQmlErrors(QmlDocument *document, const QString &fallback) {
     QStringList lines;
     if (document) {
-        foreach (const QmlError &error, document->errors()) {
+        foreach (const QDeclarativeError &error, document->errors()) {
             const QString line = error.toString();
             qWarning() << "EH LightReader QML error:" << line;
             lines << line;
