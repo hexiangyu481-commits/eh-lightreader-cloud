@@ -22,7 +22,7 @@ assert "ignoreSslErrors()" not in cpp
 assert 'ORIGIN("https://eh-lightreader-cloud.hexiangyu481.workers.dev")' in cpp
 for p in ["/api/search","/api/catalog","/api/page"]: assert p in cpp,p
 for p in ["upstream_rate_limited","upstream_access_denied","upstream_challenge"]: assert p in cpp,p
-assert "QSettings" in cpp
+assert "m_settings" in cpp
 assert "QImageReader" in cpp
 assert "if(!permittedImage(image))" in cpp
 assert "MAX_IMAGE=8*1024*1024" in cpp
