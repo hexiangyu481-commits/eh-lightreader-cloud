@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.20)
+project(eh_lightreader LANGUAGES CXX)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/arm/o.le-v7-g")
+include(BB10Qt4)
+qt4_wrap_cpp(EH_MOC_SOURCES src/ehlrbackend.h)
+add_executable(eh_lightreader src/main.cpp src/ehlrbackend.cpp src/ehlrbackend.h ${EH_MOC_SOURCES})
+target_link_libraries(eh_lightreader PRIVATE bbcascades bbdata QtDeclarative QtGui QtNetwork QtCore socket)

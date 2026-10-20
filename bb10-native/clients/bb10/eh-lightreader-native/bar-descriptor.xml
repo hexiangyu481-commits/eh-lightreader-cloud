@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<qnx xmlns="http://www.qnx.com/schemas/application/1.0">
+  <id>com.heberry.ehlightreader</id>
+  <name>EH 轻阅读</name>
+  <versionNumber>0.1.0</versionNumber>
+  <buildId>1</buildId>
+  <description>Standalone native Cascades EH LightReader for BlackBerry Q20</description>
+  <author>HE Berry</author>
+  <icon><image>icon.png</image></icon>
+  <initialWindow>
+    <autoOrients>false</autoOrients>
+    <systemChrome>none</systemChrome>
+  </initialWindow>
+  <configuration name="Device-Debug">
+    <platformArchitecture>armle-v7</platformArchitecture>
+    <asset path="build/cmake/arm/o.le-v7-g/eh_lightreader" entry="true" type="Qnx/Elf">eh_lightreader</asset>
+  </configuration>
+  <asset path="icon.png">icon.png</asset>
+  <asset path="assets">assets</asset>
+  <permission system="true">run_native</permission>
+  <permission>access_internet</permission>
+  <env var="LD_LIBRARY_PATH" value="app/native/lib:/usr/lib/qt4/lib"/>
+</qnx>

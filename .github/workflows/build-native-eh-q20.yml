@@ -1,0 +1,31 @@
+name: Build Native EH LightReader Q20 (mirror)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "bb10-native/**"
+      - ".github/workflows/build-native-eh-q20.yml"
+permissions:
+  contents: read
+jobs:
+  build-q20-native:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Native source/manifest checks
+        run: cd bb10-native && python3 scripts/test-bb10-eh-lightreader.py
+      - name: Build Cascades ARM BAR using pinned HE Berry toolchain
+        run: cd bb10-native && sh scripts/build-bb10-eh-lightreader.sh
+      - name: Show verified package identity
+        run: |
+          unzip -p bb10-native/dist/EH_LightReader_BB10_0.1.0.bar META-INF/MANIFEST.MF | grep -E '^Package-Name:|^Package-Version:'
+          cat bb10-native/dist/EH_LightReader_BB10_0.1.0.bar.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: EH-LightReader-Q20-Native-0.1.0
+          path: |
+            bb10-native/dist/EH_LightReader_BB10_0.1.0.bar
+            bb10-native/dist/EH_LightReader_BB10_0.1.0.bar.sha256
+          retention-days: 30
