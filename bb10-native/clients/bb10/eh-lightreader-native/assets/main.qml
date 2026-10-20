@@ -1,4 +1,5 @@
 import bb.cascades 1.3
+import bb.data 1.0
 
 // EH LightReader / Q20: every visible control is a native Cascades item.
 // No browser widget, Userscripts, iframe, remote HTML or JavaScript browser engine.
@@ -52,7 +53,7 @@ Page {
             original.coverLocal = path
             comicModel.replace(index, original)
         })
-        _eh.search("language:chinese$", 0, 1)
+        // Do not start a network request during UI creation; wait for an explicit Search tap.
     }
 
     keyListeners: [
