@@ -24,7 +24,7 @@ Page {
             textStyle.color: Color.create("#CBB6DF")
         }
         Label {
-            text: _startupError
+            text: _startup.message
             multiline: true
             textStyle.fontSize: FontSize.XSmall
             textStyle.color: Color.create("#FFFFFF")
