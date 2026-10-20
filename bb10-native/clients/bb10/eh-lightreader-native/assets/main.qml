@@ -132,7 +132,6 @@ Page {
                 hintText: "中文标题或标签"
                 text: "language:chinese$"
                 textStyle.fontSize: FontSize.Medium
-                onSubmitted: root.showSearch(root.queryCategory)
             }
             Container {
                 layout: StackLayout {
